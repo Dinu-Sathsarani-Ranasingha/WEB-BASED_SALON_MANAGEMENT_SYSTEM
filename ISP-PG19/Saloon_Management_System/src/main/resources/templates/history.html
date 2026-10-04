@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Appointments | Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 4rem; background-color: var(--background); min-height: 100vh; }
+        .header-section { margin-bottom: 3rem; border-bottom: 1px solid rgba(176,75,90,0.1); padding-bottom: 1.5rem; }
+        .page-title { font-size: 2.5rem; }
+        .page-title .italic { font-style: italic; color: var(--primary); }
+
+        .history-card { background: var(--surface); padding: 3rem; border-radius: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.1); }
+
+        .search-row { display: flex; gap: 1rem; margin-bottom: 2.5rem; max-width: 500px; }
+
+        /* Modern Table Styling */
+        .styled-table { width: 100%; border-collapse: collapse; }
+        .styled-table th { text-align: left; padding: 1rem; border-bottom: 2px solid var(--primary-container); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--on-surface-variant); }
+        .styled-table td { padding: 1.5rem 1rem; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 0.95rem; color: var(--on-surface); vertical-align: middle; }
+
+        .status-badge { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .status-paid { background: #e8f5e9; color: #2e7d32; }
+        .status-cancelled { background: #ffebee; color: #c62828; }
+        .status-pending { background: #e3f2fd; color: #1565c0; }
+
+        .btn-sm { padding: 0.5rem 1rem; font-size: 0.75rem; border-radius: 0.5rem; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="header-section">
+        <span class="form-label" style="color:var(--primary);">Timeline</span>
+        <h1 class="page-title">My <span class="italic">Appointments</span></h1>
+    </div>
+
+    <div class="history-card">
+        <table class="styled-table">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Investment</th>
+                <th>Payment Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="historyTableBody">
+            <tr><td colspan="5" style="text-align:center; padding: 3rem; color: var(--on-surface-variant); font-style: italic;">Loading your timeline...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+    // Automatically fetch history when the page loads
+    window.onload = fetchHistory;
+
+    async function fetchHistory() {
+        const tbody = document.getElementById('historyTableBody');
+
+        try {
+            // No phone number needed in the URL anymore!
+            const res = await fetch(`/api/appointments/history`);
+            if (!res.ok) throw new Error("Server error");
+            const data = await res.json();
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 3rem; color: var(--on-surface-variant);">You have no previous appointments.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(appt => {
+                let statusClass = appt.status.toUpperCase() === 'PAID' ? 'status-paid' :
+                    appt.status.toUpperCase() === 'CANCELLED' ? 'status-cancelled' : 'status-pending';
+
+                let actions = appt.status !== 'CANCELLED' ? `
+                    <div style="display:flex; gap:0.5rem;">
+                        <button class="btn btn-outline btn-sm" onclick="rescheduleAppt(${appt.id})">Reschedule</button>
+                        <button class="btn btn-primary btn-sm" style="background:#e91e63;" onclick="cancelAppt(${appt.id})">Cancel</button>
+                    </div>
+                ` : '<span style="color:var(--outline); font-size:0.8rem;">No actions available</span>';
+
+                return `
+                    <tr>
+                        <td style="font-weight:600;">${appt.appointmentDate}</td>
+                        <td>${appt.appointmentTime}</td>
+                        <td style="font-family:'Playfair Display',serif; font-weight:700; color:var(--primary);">LKR ${appt.totalPrice.toFixed(2)}</td>
+                        <td><span class="status-badge ${statusClass}">${appt.status}</span></td>
+                        <td>${actions}</td>
+                    </tr>`;
+            }).join('');
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: #e91e63;">Error connecting to the server.</td></tr>';
+        }
+    }
+
+    async function cancelAppt(id) {
+        if(confirm("Are you sure you want to cancel this appointment?")) {
+            try {
+                await fetch(`/api/appointments/${id}/cancel`, { method: 'PUT' });
+                fetchHistory(); // Refresh the table
+            } catch (error) { alert("Error cancelling appointment."); }
+        }
+    }
+
+    function rescheduleAppt(id) {
+        window.location.href = `/customer/book?rescheduleId=${id}`;
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Customer Highlights - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; min-height: 100vh; background-color: var(--background); padding-bottom: 4rem; }
+
+        .dashboard-header { padding: 4rem; background: var(--surface-container-low); border-bottom: 1px solid rgba(233, 30, 99, 0.1); }
+        .dashboard-header h1 { font-size: 3rem; margin-bottom: 0.5rem; }
+        .dashboard-header h1 .italic { font-style: italic; color: var(--primary); }
+
+        .content-body { padding: 4rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2.5rem; margin-bottom: 4rem;} /* Added margin-bottom to separate sections */
+
+        .dash-card { background: var(--surface); padding: 2.5rem; border-radius: 2.5rem; border: 1px solid rgba(233,30,99,0.1); box-shadow: 0 4px 12px rgba(0,0,0,0.02); transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); display: flex; flex-direction: column; }
+        .dash-card:hover { transform: translateY(-8px); box-shadow: 0 24px 48px rgba(233,30,99,0.1); border-color: var(--primary); }
+
+        .rating-stars { color: var(--primary); font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 1rem; display: block; }
+        .reviewer-name { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--on-surface); margin-bottom: 0.5rem; }
+        .review-text { color: var(--on-surface-variant); font-size: 0.95rem; line-height: 1.7; flex-grow: 1; }
+        .service-tag { margin-top: 1.5rem; font-size: 0.75rem; font-weight: bold; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; }
+
+        .section-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--on-surface); margin-bottom: 1.5rem;}
+        .section-title .italic { font-style: italic; color: var(--primary); }
+
+        .btn-outline { background: white; color: var(--on-surface-variant); border: 1px solid var(--outline); padding: 1rem 2rem; border-radius: 9999px; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; transition: all 0.3s; display: inline-block; margin-bottom: 3rem;}
+        .btn-outline:hover { background: var(--primary-container); color: var(--primary); border-color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="dashboard-header">
+        <span style="display:block; margin-bottom:1rem; color:var(--primary); font-size: 0.75rem; letter-spacing: 0.2em; font-weight: 700; text-transform: uppercase;">Customer Highlights</span>
+        <h1>Top <span class="italic">Recommendations</span></h1>
+    </div>
+
+    <div class="content-body">
+
+        <a th:href="@{/feedback}" class="btn-outline">← What was the highlight of your experience?</a>
+
+        <h2 class="section-title">Client <span class="italic">Reviews</span></h2>
+        <div class="grid">
+            <div th:each="fb : ${feedbacks}" class="dash-card">
+
+                <div class="reviewer-name" th:text="${fb.name}"></div>
+                <div class="review-text" th:text="${'&quot;' + fb.comment + '&quot;'}"></div>
+
+                <div class="service-tag" th:if="${fb.service != null and !fb.service.isEmpty()}" th:text="${fb.service}"></div>
+
+            </div>
+
+            <div th:if="${#lists.isEmpty(feedbacks)}" style="grid-column: 1 / -1; text-align: center; color: var(--outline); padding: 3rem;">
+                No written reviews found yet.
+            </div>
+        </div>
+
+
+        <h2 class="section-title">Top <span class="italic">Ratings</span></h2>
+        <div class="grid">
+            <div th:each="r : ${ratings}" th:if="${r.rating >= 4}" class="dash-card">
+
+                <span class="rating-stars" th:text="${r.rating == 4 ? '★★★★☆' : '★★★★★'}"></span>
+                <div class="reviewer-name" th:text="${r.name}"></div>
+
+                <div class="review-text" th:if="${r.service != null and !r.service.isEmpty()}"
+                     th:text="'Rated our ' + ${r.service} + ' service'"></div>
+
+            </div>
+
+            <div th:if="${#lists.isEmpty(ratings)}" style="grid-column: 1 / -1; text-align: center; color: var(--outline); padding: 3rem;">
+                No top ratings found yet.
+            </div>
+        </div>
+
+    </div>
+</main>
+
+</body>
+</html>

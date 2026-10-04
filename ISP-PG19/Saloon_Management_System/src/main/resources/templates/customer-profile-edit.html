@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 4rem; display: flex; flex-direction: column; align-items: center; }
+        .form-card { background: var(--surface); border-radius: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.1); padding: 4rem; width: 100%; max-width: 600px; }
+        .form-header { text-align: center; margin-bottom: 3rem; }
+        .form-header h1 { font-size: 2.2rem; }
+        .form-header h1 .italic { font-style: italic; color: var(--primary); }
+        .error { color: #e91e63; font-size: 0.8rem; margin-top: -15px; margin-bottom: 15px; display: block; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="form-card">
+        <div class="form-header">
+            <h1>Update <span class="italic">Details</span></h1>
+        </div>
+
+        <form th:action="@{/customer/profile/edit}" th:object="${customer}" method="post">
+
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" th:field="*{name}" id="name" class="form-control" required />
+            <span th:if="${#fields.hasErrors('name')}" class="error" th:errors="*{name}"></span>
+
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" th:field="*{email}" id="email" class="form-control" required />
+            <span th:if="${#fields.hasErrors('email')}" class="error" th:errors="*{email}"></span>
+
+            <label for="phoneNumber" class="form-label">Phone Number</label>
+            <input type="text" th:field="*{phoneNumber}" id="phoneNumber" class="form-control" required />
+            <span th:if="${#fields.hasErrors('phoneNumber')}" class="error" th:errors="*{phoneNumber}"></span>
+
+            <div style="text-align: center; margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Changes</button>
+                <a th:href="@{/customer/profile}" style="display:inline-block; margin-top:1.5rem; color:var(--on-surface-variant); font-size:0.85rem; font-weight:700; text-decoration:none; text-transform:uppercase; letter-spacing:0.1em;">Cancel</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>

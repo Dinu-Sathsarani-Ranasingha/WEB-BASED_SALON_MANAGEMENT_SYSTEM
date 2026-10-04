@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .container {
+            display: flex;
+            min-height: 100vh;
+            align-items: stretch; /* Add this to ensure columns stretch together */
+        }
+
+        /* Sidebar Refined */
+        .sidebar {
+            width: 200px;
+            background: #f9c2d1;
+            padding: 25px 15px;
+            flex-shrink: 0;
+            position: sticky; /* Change from relative to sticky */
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column; /* Allows us to push the logout to the bottom */
+        }
+
+        .sidebar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-style: italic;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+        .sidebar-menu { list-style: none; flex-grow: 1; }
+        .sidebar-menu li { margin-bottom: 0.5rem; }
+        .sidebar-menu a {
+            display: block;
+            padding: 1rem;
+            color: var(--on-surface-variant);
+            text-decoration: none;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: var(--primary-container);
+            color: var(--primary);
+        }
+
+        /* Main Content area */
+        .main-content {
+            flex: 1;
+            margin-left: 260px; /* ADD THIS to push content past the fixed sidebar */
+            padding: 4rem 50px; /* Adjust padding to match */
+            overflow-y: auto;
+            min-height: 100vh;
+        }
+        .welcome-title { font-size: 3rem; margin-bottom: 0.5rem; }
+        .role-badge {
+            background: var(--secondary-container);
+            color: var(--on-primary-container);
+            padding: 0.5rem 1.2rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Themed Hero Image Portrait */
+        .hero-portrait {
+            width: 350px;
+            height: 350px;
+            border-radius: 2.5rem;
+            overflow: hidden;
+            border: 8px solid white;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+        }
+        .hero-portrait img { width: 100%; height: 100%; object-fit: cover; }
+
+
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin: 3rem 0; }
+        .stat-card {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            border: 1px solid var(--surface-container-high);
+        }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--on-surface-variant); }
+        .stat-value { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--primary); }
+
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;          /* Add this */
+            flex-direction: column; /* Add this */
+            height: 100%;           /* Add this to keep cards equal height */
+        }
+        .card-header { background: var(--surface-container-high); padding: 1.5rem 2rem; }
+        .card-header h3 { margin: 0; font-size: 1.25rem; color: var(--on-surface); }
+        .card-body {
+            padding: 30px;
+            flex-grow: 1;           /* Add this to take up available space */
+            display: flex;          /* Add this */
+            flex-direction: column; /* Add this */
+            justify-content: space-between; /* This pushes the button to the bottom */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <aside style="width:260px; background:var(--surface); height:100vh; position:fixed; top:0; left:0; padding:2rem; box-sizing:border-box; border-right: 1px solid rgba(233, 30, 99, 0.15); display: flex; flex-direction: column; z-index: 100;">
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--on-surface); margin-bottom: 0.5rem; text-align: center;">
+            Salon <span style="font-style: italic; color: var(--primary);">Harshi</span>
+        </h3>
+
+        <div style="text-align: center; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--primary); margin-bottom: 3rem; font-weight: 700;">
+            <span sec:authorize="hasRole('OWNER')">Owner Portal</span>
+            <span sec:authorize="hasRole('RECEPTIONIST')">Front Desk</span>
+            <span sec:authorize="hasRole('STAFF')">Staff Portal</span>
+        </div>
+
+        <ul style="list-style:none; padding:0; flex-grow: 1;">
+            <li style="margin: 0.5rem 0;">
+                <a th:href="${#authorization.expression('hasRole(''OWNER'')') ? '/owner/dashboard' : (#authorization.expression('hasRole(''RECEPTIONIST'')') ? '/reception/dashboard' : '/staff/dashboard')}"
+                   style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; background:var(--primary-container); color:var(--primary);">
+                    Dashboard
+                </a>
+            </li>
+
+            <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">Operations</li>
+            <li style="margin: 0.5rem 0;">
+                <a th:href="${#authorization.expression('hasRole(''STAFF'')') ? '/staff/schedule' : '/admin/daily-appointments'}"
+                   style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: 0.3s;"
+                   onmouseover="this.style.background='var(--primary-container)'; this.style.color='var(--primary)'"
+                   onmouseout="this.style.background='none'; this.style.color='var(--on-surface-variant)'">
+                    Daily Appointments
+                </a>
+            </li>
+
+            <li sec:authorize="hasRole('RECEPTIONIST')" style="margin: 0.5rem 0;">
+                <a th:href="@{/reception/staff-view}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: 0.3s;"
+                   onmouseover="this.style.background='var(--primary-container)'; this.style.color='var(--primary)'"
+                   onmouseout="this.style.background='none'; this.style.color='var(--on-surface-variant)'">
+                    Staff Availability
+                </a>
+            </li>
+
+            <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">Account</li>
+            <li style="margin: 0.5rem 0;">
+                <a th:href="${#authorization.expression('hasRole(''STAFF'')') ? '/staff/profile' : '/reception/profile'}"
+                   style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: 0.3s;"
+                   onmouseover="this.style.background='var(--primary-container)'; this.style.color='var(--primary)'"
+                   onmouseout="this.style.background='none'; this.style.color='var(--on-surface-variant)'">
+                    My Profile
+                </a>
+            </li>
+        </ul>
+
+        <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--surface-container-high); text-align: center;">
+            <a th:href="@{/logout}" style="color: var(--on-surface-variant); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">Sign Out</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="header-section">
+            <header>
+                <h1 class="welcome-title serif">Welcome, <span class="italic" th:text="${#authentication.principal.username}" style="color: var(--primary); font-style: italic;">Staff</span></h1>
+                <span class="role-badge">Official Staff Member</span>
+
+                <p class="welcome-description">
+                    Ready for another great day at Salon Harshi? <br>
+                    Here is an overview of your daily appointments, tasks, and recent activity.<br>
+                    Let's make our clients look and feel their best!
+                </p>
+            </header>
+
+            <div class="hero-portrait">
+                <img th:src="@{/images/staff.jpg}" alt="Staff image">
+                <div style="text-align: center; margin-top: -30px; position: relative;">
+                    <span style="font-family: 'Playfair Display', serif; font-size: 1.1rem; color: black; font-weight: bold; font-style: italic; background: white; padding: 2px 8px; border-radius: 4px;">Our Staff</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Today's Tasks</div>
+                <div class="stat-value" th:text="${todayTasks != null ? todayTasks : '00'}">05</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Services Done</div>
+                <div class="stat-value" th:text="${totalServices != null ? totalServices : '0'}">127</div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="dashboard-card">
+                <div class="card-header"><h3 class="serif">Your Schedule</h3></div>
+                <div class="card-body">
+                    <p style="color: var(--on-surface-variant); margin-bottom: 2rem;">Keep track of your client bookings and daily flow.</p>
+                    <a href="/staff/schedule" class="btn btn-primary" style="width: 100%; text-align: center;">View Schedule</a>
+                </div>
+            </div>
+            <div class="dashboard-card">
+                <div class="card-header"><h3 class="serif">Account Security</h3></div>
+                <div class="card-body">
+                    <p style="color: var(--on-surface-variant); margin-bottom: 2rem;">Update your credentials and personal details here.</p>
+                    <a href="/staff/change-password" class="btn btn-outline" style="width: 100%; text-align: center;">Change Password</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

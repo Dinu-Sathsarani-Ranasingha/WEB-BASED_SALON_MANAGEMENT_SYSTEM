@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .container { display: flex; min-height: 100vh; background: var(--background); }
+
+        /* Sidebar Styled to match Dashboard */
+        .sidebar {
+            width: 260px;
+            background: var(--surface);
+            padding: 2.5rem 1.5rem;
+            border-right: 1px solid rgba(233, 30, 99, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+        .sidebar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-style: italic;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+        .sidebar-menu { list-style: none; flex-grow: 1; }
+        .sidebar-menu li { margin-bottom: 0.5rem; }
+        .sidebar-menu a {
+            display: block;
+            padding: 1rem;
+            color: var(--on-surface-variant);
+            text-decoration: none;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: var(--primary-container);
+            color: var(--primary);
+        }
+
+        /* Main Form Area */
+        .main-content { margin-left: 260px; flex: 1; padding: 4rem; display: flex; justify-content: center; }
+        .edit-card {
+            background: var(--surface);
+            width: 100%;
+            max-width: 650px;
+            padding: 3.5rem;
+            border-radius: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(233, 30, 99, 0.05);
+        }
+        .form-header { margin-bottom: 2.5rem; }
+        .error-msg {
+            color: var(--primary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <aside class="sidebar">
+        <div class="sidebar-brand">Salon Harshi</div>
+        <ul class="sidebar-menu">
+            <li><a th:href="@{/staff/dashboard}">Dashboard</a></li>
+            <li><a th:href="@{/staff/profile}" class="active">My Profile</a></li>
+        </ul>
+        <div style="margin-top: auto;">
+            <a th:href="@{/logout}" class="btn btn-outline" style="font-size: 0.65rem; width: 100%; text-align: center;">Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="edit-card">
+            <div class="form-header">
+                <h1 class="serif">Edit <span class="italic" style="color: var(--primary);">Information</span></h1>
+                <p style="color: var(--on-surface-variant); font-size: 0.9rem;">Update your professional profile details below.</p>
+            </div>
+
+            <form th:action="@{/staff/profile/edit}" th:object="${employee}" method="post">
+
+                <label for="firstName" class="form-label">First Name</label>
+                <input type="text" th:field="*{firstName}" id="firstName" class="form-control" required>
+                <span th:if="${#fields.hasErrors('firstName')}" class="error-msg" th:errors="*{firstName}"></span>
+
+                <label for="lastName" class="form-label">Last Name</label>
+                <input type="text" th:field="*{lastName}" id="lastName" class="form-control" required>
+                <span th:if="${#fields.hasErrors('lastName')}" class="error-msg" th:errors="*{lastName}"></span>
+
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" th:field="*{email}" id="email" class="form-control" required>
+                <span th:if="${#fields.hasErrors('email')}" class="error-msg" th:errors="*{email}"></span>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a th:href="@{/staff/profile}" class="btn btn-outline" style="text-align: center;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

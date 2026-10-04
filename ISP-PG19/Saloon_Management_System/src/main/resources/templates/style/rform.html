@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Style Recommendations - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; min-height: 100vh; background-color: var(--background); padding-bottom: 4rem; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .dash-card { width: 100%; max-width: 600px; background: var(--surface); padding: 3rem 4rem; border-radius: 2.5rem; border: 1px solid rgba(233,30,99,0.1); box-shadow: 0 12px 32px rgba(0,0,0,0.05); }
+
+        .dashboard-header { text-align: center; margin-bottom: 3rem; }
+        .dashboard-header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .dashboard-header h1 .italic { font-style: italic; color: var(--primary); }
+        .hero-desc { color: var(--on-surface-variant); font-size: 0.95rem; line-height: 1.6; margin-top: 1rem; }
+
+        .edit-notice { background: var(--surface-container); border: 1px solid var(--outline); border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 0.85rem; color: var(--on-surface-variant); font-weight: 600; text-align: center; }
+        .error-msg { color: var(--primary); font-size: 0.75rem; margin-top: -15px; margin-bottom: 15px; display: block; font-weight: 600; }
+
+        .btn-submit { width: 100%; margin-top: 1rem; text-align: center; }
+    </style>
+</head>
+<body>
+
+<!-- style recomendation form -->
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="dash-card">
+        <div class="dashboard-header">
+            <span style="display:block; margin-bottom:1rem; color:var(--primary); font-size: 0.75rem; letter-spacing: 0.2em; font-weight: 700; text-transform: uppercase;" th:text="${featureId != null} ? 'Update your profile' : 'Personalised for you'"></span>
+            <h1>
+                <span th:if="${featureId == null}">Discover Your <span class="italic">Perfect Style</span></span>
+                <span th:if="${featureId != null}">Edit Your <span class="italic">Features</span></span>
+            </h1>
+            <p class="hero-desc" th:text="${featureId != null} ? 'Update your features and we will regenerate fresh recommendations tailored to your correct profile.' : 'Tell us about your unique features and we will craft personalised hair and style recommendations just for you.'"></p>
+        </div>
+
+        <div class="edit-notice" th:if="${featureId != null}">
+            ✏️ Your selections are pre-filled — change what was wrong and submit to get new recommendations.
+        </div>
+
+        <form th:action="${featureId != null} ? @{/style/edit/{id}(id=${featureId})} : @{/style/recommend}"
+              th:object="${styleRequest}" method="post" novalidate>
+
+            <label class="form-label">Hair Type *</label>
+            <select th:field="*{hairType}" class="form-control" th:classappend="${#fields.hasErrors('hairType')} ? 'error-field'">
+                <option value="">— Select —</option>
+                <option value="straight">Straight</option>
+                <option value="wavy">Wavy</option>
+                <option value="curly">Curly</option>
+                <option value="coily">Coily</option>
+            </select>
+            <span class="error-msg" th:if="${#fields.hasErrors('hairType')}" th:errors="*{hairType}"></span>
+
+            <label class="form-label">Face Shape *</label>
+            <select th:field="*{faceShape}" class="form-control" th:classappend="${#fields.hasErrors('faceShape')} ? 'error-field'">
+                <option value="">— Select —</option>
+                <option value="oval">Oval</option>
+                <option value="round">Round</option>
+                <option value="square">Square</option>
+                <option value="heart">Heart</option>
+            </select>
+            <span class="error-msg" th:if="${#fields.hasErrors('faceShape')}" th:errors="*{faceShape}"></span>
+
+            <label class="form-label">Eye Color *</label>
+            <select th:field="*{eyeColor}" class="form-control" th:classappend="${#fields.hasErrors('eyeColor')} ? 'error-field'">
+                <option value="">— Select —</option>
+                <option value="brown">Brown</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+                <option value="hazel">Hazel</option>
+                <option value="grey">Grey</option>
+            </select>
+            <span class="error-msg" th:if="${#fields.hasErrors('eyeColor')}" th:errors="*{eyeColor}"></span>
+
+            <label class="form-label">Skin Tone *</label>
+            <select th:field="*{skinTone}" class="form-control" th:classappend="${#fields.hasErrors('skinTone')} ? 'error-field'">
+                <option value="">— Select —</option>
+                <option value="fair">Fair</option>
+                <option value="medium">Medium</option>
+                <option value="olive">Olive</option>
+                <option value="dark">Dark</option>
+            </select>
+            <span class="error-msg" th:if="${#fields.hasErrors('skinTone')}" th:errors="*{skinTone}"></span>
+
+            <label class="form-label">Style Preference *</label>
+            <select th:field="*{stylePreference}" class="form-control" th:classappend="${#fields.hasErrors('stylePreference')} ? 'error-field'">
+                <option value="">— Select —</option>
+                <option value="classic">Classic</option>
+                <option value="modern">Modern</option>
+                <option value="bold">Bold</option>
+                <option value="natural">Natural</option>
+            </select>
+            <span class="error-msg" th:if="${#fields.hasErrors('stylePreference')}" th:errors="*{stylePreference}"></span>
+
+            <button type="submit" class="btn btn-primary btn-submit" th:text="${featureId != null} ? 'Update Recommendations' : 'Get Recommendations'"></button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head></head>
+<body>
+<th:block th:fragment="sidebar">
+    <aside style="width:260px; background:var(--surface); height:100vh; position:fixed; top:0; left:0; padding:2rem; box-sizing:border-box; border-right: 1px solid rgba(233, 30, 99, 0.15); display: flex; flex-direction: column; z-index: 100; overflow-y: auto;">
+        <a th:href="@{/}" style="text-decoration: none;">
+            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--on-surface); margin-bottom: 3rem; text-align: center;">
+                Salon <span style="font-style: italic; color: var(--primary);">Harshi</span>
+            </h3>
+        </a>
+
+        <ul style="list-style:none; padding:0; flex-grow: 1;">
+            <li style="margin: 0.5rem 0;">
+                <a th:href="@{/}"
+                   style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; transition: all 0.3s; color:var(--on-surface-variant);"
+                   onmouseover="this.style.background='var(--primary-container)'; this.style.color='var(--primary)'"
+                   onmouseout="this.style.background='none'; this.style.color='var(--on-surface-variant)'">
+                    Home Page
+                </a>
+            </li>
+
+            <li style="margin: 0.5rem 0;">
+                <a th:href="@{/customer/dashboard}"
+                   style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; transition: all 0.3s;"
+                   th:styleappend="${active == 'dashboard'} ? 'background:var(--primary-container); color:var(--primary);' : 'color:var(--on-surface-variant);'">
+                    My Dashboard
+                </a>
+            </li>
+
+            <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">
+                Menu
+            </li>
+
+            <li style="margin: 0.5rem 0;">
+                <a th:href="@{/customer/services}"
+                   style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; transition: all 0.3s;"
+                   th:styleappend="${active == 'services'} ? 'background:var(--primary-container); color:var(--primary);' : 'color:var(--on-surface-variant);'">
+                    Browse Services
+                </a>
+            </li>
+
+            <li style="margin: 0.5rem 0;">
+                <a th:href="@{/customer/packages}"
+                   style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; transition: all 0.3s;"
+                   th:styleappend="${active == 'packages'} ? 'background:var(--primary-container); color:var(--primary);' : 'color:var(--on-surface-variant);'">
+                    Special Packages
+                </a>
+            </li>
+
+            <li style="margin: 0.5rem 0;">
+                <a th:href="@{/appointments/my-history}"
+                   style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; transition: all 0.3s;"
+                   th:styleappend="${active == 'appointments'} ? 'background:var(--primary-container); color:var(--primary);' : 'color:var(--on-surface-variant);'">
+                    My Appointments
+                </a>
+            </li>
+
+            <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">
+                Interactive
+            </li>
+
+            <li style="margin: 0.5rem 0;">
+                <a th:href="@{/feedback}"
+                   style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; transition: all 0.3s;"
+                   th:styleappend="${active == 'feedback'} ? 'background:var(--primary-container); color:var(--primary);' : 'color:var(--on-surface-variant);'">
+                    Feedbacks & Ratings
+                </a>
+            </li>
+
+            <li style="margin: 0.5rem 0;">
+                <a th:href="@{/style}"
+                   style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; transition: all 0.3s;"
+                   th:styleappend="${active == 'style'} ? 'background:var(--primary-container); color:var(--primary);' : 'color:var(--on-surface-variant);'">
+                    Style Recommendations
+                </a>
+            </li>
+
+            <li style="margin: 0.5rem 0;">
+                <a th:href="@{/style/liked}"
+                   style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; transition: all 0.3s;"
+                   th:styleappend="${active == 'liked'} ? 'background:var(--primary-container); color:var(--primary);' : 'color:var(--on-surface-variant);'">
+                    My Saved Styles
+                </a>
+            </li>
+        </ul>
+
+        <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--surface-container-high); text-align: center;">
+            <a th:href="@{/logout}" style="color: var(--on-surface-variant); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">Sign Out</a>
+        </div>
+    </aside>
+</th:block>
+</body>
+</html>

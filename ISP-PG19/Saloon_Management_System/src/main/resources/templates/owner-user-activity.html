@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Activity - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 3rem 4rem; min-height: 100vh; background-color: var(--background); }
+
+        .page-header { margin-bottom: 3rem; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--on-surface); margin-bottom: 0.5rem; }
+        .page-title .italic { font-style: italic; color: var(--primary); }
+
+        .filter-section { background: var(--surface); padding: 2rem; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 2rem; border: 1px solid rgba(233,30,99,0.05); }
+        .filter-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--on-surface-variant); margin-bottom: 1rem; }
+        .filter-buttons { display: flex; gap: 1rem; }
+
+        .filter-btn { padding: 10px 24px; border-radius: 9999px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s; background: white; border: 2px solid var(--primary-container); color: var(--on-surface-variant); }
+        .filter-btn:hover { border-color: var(--primary); }
+        .filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(233, 30, 99, 0.2); }
+
+        .stats-box { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-style: italic; color: var(--primary); margin-bottom: 2rem; }
+
+        .table-container { background: var(--surface); border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); padding: 2rem; border: 1px solid rgba(233,30,99,0.05); }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        th { text-align: left; padding: 1rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--on-surface-variant); border-bottom: 2px solid var(--surface-container); }
+        td { padding: 1.2rem 1rem; font-size: 0.9rem; color: var(--on-surface); border-bottom: 1px solid var(--surface-container); }
+        tr:last-child td { border-bottom: none; }
+
+        .type-badge { padding: 6px 12px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: var(--surface-variant); color: var(--on-surface-variant); }
+    </style>
+</head>
+<body>
+
+<aside style="width:260px; background:var(--surface); height:100vh; position:fixed; top:0; left:0; padding:2rem; box-sizing:border-box; border-right: 1px solid rgba(233, 30, 99, 0.15); display: flex; flex-direction: column; z-index: 100;">
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--on-surface); margin-bottom: 0.5rem; text-align: center;">Salon <span style="font-style: italic; color: var(--primary);">Harshi</span></h3>
+    <div style="text-align: center; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--primary); margin-bottom: 3rem; font-weight: 700;">Owner Portal</div>
+
+    <ul style="list-style:none; padding:0; flex-grow: 1;">
+        <li style="margin: 0.5rem 0;"><a th:href="@{/owner/dashboard}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;">Dashboard</a></li>
+        <li style="margin: 0.5rem 0;"><a th:href="@{/owner/create-employee}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;">Create Employee</a></li>
+        <li style="margin: 0.5rem 0;"><a th:href="@{/owner/user-activity}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; background:var(--primary-container); color:var(--primary); transition: all 0.3s;">User Activity</a></li>
+    </ul>
+
+    <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--surface-container-high); text-align: center;">
+        <a th:href="@{/logout}" style="color: var(--on-surface-variant); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">Sign Out</a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">User <span class="italic">Activity Log</span></h1>
+        <p style="color: var(--on-surface-variant);">Track user login history and system access.</p>
+    </div>
+
+    <div class="filter-section">
+        <div class="filter-title">Filter by Identity</div>
+        <div class="filter-buttons">
+            <form th:action="@{/owner/user-activity}" method="get">
+                <button type="submit" name="filter" value="all" class="filter-btn" th:classappend="${currentFilter == 'all'} ? 'active'">All Users</button>
+            </form>
+            <form th:action="@{/owner/user-activity}" method="get">
+                <button type="submit" name="filter" value="staff" class="filter-btn" th:classappend="${currentFilter == 'staff'} ? 'active'">Staff Only</button>
+            </form>
+            <form th:action="@{/owner/user-activity}" method="get">
+                <button type="submit" name="filter" value="customer" class="filter-btn" th:classappend="${currentFilter == 'customer'} ? 'active'">Clients Only</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="stats-box" th:text="|Showing ${filterType} (${activityCount} records)|">Showing All Users (6 records)</div>
+
+    <div class="table-container" th:if="${activities != null and !activities.isEmpty()}">
+        <table>
+            <thead>
+            <tr>
+                <th>User Name</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Last Login</th>
+                <th>Count</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="activity : ${activities}">
+                <td style="font-weight: 700;" th:text="${activity.fullName}">System Admin</td>
+                <td th:text="${activity.username}">admin</td>
+                <td><span class="type-badge" th:text="${activity.userType}">OWNER</span></td>
+                <td th:text="${#temporals.format(activity.lastLogin, 'MMM dd, yyyy HH:mm')}">Apr 01, 2026</td>
+                <td><strong th:text="${activity.loginCount}">22</strong></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

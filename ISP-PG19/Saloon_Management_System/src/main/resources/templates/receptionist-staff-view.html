@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Availability - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 3rem 4rem; min-height: 100vh; background-color: var(--background); }
+        .page-header { margin-bottom: 3rem; border-bottom: 1px solid rgba(233, 30, 99, 0.1); padding-bottom: 1.5rem; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--on-surface); margin: 0; }
+        .page-title .italic { font-style: italic; color: var(--primary); }
+
+        .table-container { background: var(--surface); border-radius: 1.5rem; padding: 2rem; border: 1px solid rgba(233,30,99,0.05); }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        th { text-align: left; padding: 1rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--on-surface-variant); border-bottom: 2px solid var(--surface-container); }
+        td { padding: 1.2rem 1rem; font-size: 0.9rem; border-bottom: 1px solid var(--surface-container); }
+
+        .role-badge, .status-badge { padding: 6px 12px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .role-receptionist { background: var(--primary-container); color: var(--primary); }
+        .role-staff { background: #e3f2fd; color: #1565c0; }
+
+        .status-active { background: #e8f5e9; color: #2e7d32; }
+        .status-inactive { background: #ffebee; color: #c62828; }
+    </style>
+</head>
+<body>
+
+<aside style="width:260px; background:var(--surface); height:100vh; position:fixed; top:0; left:0; padding:2rem; box-sizing:border-box; border-right: 1px solid rgba(233, 30, 99, 0.15); display: flex; flex-direction: column; z-index: 100;">
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--on-surface); margin-bottom: 0.5rem; text-align: center;">Salon <span style="font-style: italic; color: var(--primary);">Harshi</span></h3>
+    <div style="text-align: center; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--primary); margin-bottom: 3rem; font-weight: 700;">Front Desk</div>
+    <ul style="list-style:none; padding:0; flex-grow: 1;">
+        <li style="margin: 0.5rem 0;"><a th:href="@{/reception/dashboard}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant);">Dashboard</a></li>
+        <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">Operations</li>
+        <li style="margin: 0.5rem 0;"><a th:href="@{/admin/daily-appointments}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant);">Daily Appointments</a></li>
+        <li style="margin: 0.5rem 0;"><a th:href="@{/reception/staff-view}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; background:var(--primary-container); color:var(--primary);">Staff Availability</a></li>
+        <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">Account</li>
+        <li style="margin: 0.5rem 0;"><a th:href="@{/reception/profile}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant);">My Profile</a></li>
+    </ul>
+</aside>
+
+<main class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">Team <span class="italic">Availability</span></h1>
+    </div>
+
+    <div class="table-container" th:if="${staffList} and ${staffList.size() > 0}">
+        <table>
+            <thead>
+            <tr>
+                <th>Staff Name</th>
+                <th>Role</th>
+                <th>Daily Schedule</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="staff : ${staffList}">
+                <td style="font-weight: 700;" th:text="${staff.firstName + ' ' + staff.lastName}">John Doe</td>
+                <td><span class="role-badge" th:classappend="|role-${staff.role.toString().toLowerCase()}|" th:text="${staff.role}">STAFF</span></td>
+                <td th:text="${staff.workStartTime + ' - ' + staff.workEndTime}">09:00 - 17:00</td>
+                <td><span class="status-badge" th:classappend="${staff.accStatus == 'ACTIVE' ? 'status-active' : 'status-inactive'}" th:text="${staff.accStatus}">ACTIVE</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

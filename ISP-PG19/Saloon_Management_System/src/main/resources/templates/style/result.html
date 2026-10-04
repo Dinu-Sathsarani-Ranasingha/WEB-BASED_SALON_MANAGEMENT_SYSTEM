@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Your Recommendations - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; min-height: 100vh; background-color: var(--background); padding-bottom: 4rem; }
+        .dashboard-header { padding: 4rem; background: var(--surface-container-low); border-bottom: 1px solid rgba(233, 30, 99, 0.1); }
+        .dashboard-header h1 { font-size: 3rem; margin-bottom: 0.5rem; }
+        .dashboard-header h1 .italic { font-style: italic; color: var(--primary); }
+
+        .content-body { padding: 4rem; max-width: 900px; margin: 0 auto;}
+
+        .updated-banner { display: flex; align-items: center; background: #e6f4ea; border: 1px solid #ceead6; border-radius: 10px; padding: 1rem; margin-bottom: 2rem; font-size: 0.9rem; color: #137333; font-weight: 600; }
+
+        .profile-bar { background: var(--surface); border: 1px solid var(--surface-variant); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; font-size: 0.95rem; color: var(--on-surface-variant); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;}
+        .profile-bar strong { color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.2rem;}
+
+        .edit-profile-btn { font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; margin-bottom: 2rem; display: inline-block; padding: 0.5rem 1rem; border: 1px solid var(--outline); border-radius: 9999px; transition: all 0.3s;}
+        .edit-profile-btn:hover { background: var(--primary-container); }
+
+        .rec-card { background: var(--surface); border: 1px solid var(--surface-variant); border-radius: 1.5rem; padding: 1.5rem 2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 1.5rem; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .rec-card:hover { border-color: var(--primary); transform: translateX(5px); box-shadow: 0 8px 24px rgba(233,30,99,0.1); }
+        .rec-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+        .rec-text { font-size: 1.1rem; color: var(--on-surface); flex: 1; font-family: 'Playfair Display', serif;}
+
+        .like-btn { padding: 0.6rem 1.2rem; background: var(--primary-container); border: none; border-radius: 9999px; color: var(--primary); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s; }
+        .like-btn:hover { background: var(--primary); color: white; }
+
+        .bottom-actions { display: flex; gap: 1rem; margin-top: 3rem; }
+        .btn-outline { background: white; color: var(--on-surface-variant); border: 1px solid var(--outline); padding: 1rem 2rem; border-radius: 9999px; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; transition: all 0.3s; display: inline-block;}
+        .btn-outline:hover { background: var(--primary-container); color: var(--primary); border-color: var(--primary); }
+    </style>
+</head>
+<body>
+<!-- Style Recomendation result page -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="dashboard-header">
+        <span style="display:block; margin-bottom:1rem; color:var(--primary); font-size: 0.75rem; letter-spacing: 0.2em; font-weight: 700; text-transform: uppercase;">Curated just for you</span>
+        <h1>Your <span class="italic">Recommendations</span></h1>
+    </div>
+
+    <div class="content-body">
+        <div class="updated-banner" th:if="${edited}">
+            ✅ Profile updated — here are your fresh recommendations!
+        </div>
+
+        <div class="profile-bar">
+            <div>
+                <strong>Profile </strong> |
+                Hair: <span th:text="${styleRequest.hairType}"></span> &nbsp;·&nbsp;
+                Face: <span th:text="${styleRequest.faceShape}"></span> &nbsp;·&nbsp;
+                Eyes: <span th:text="${styleRequest.eyeColor}"></span> &nbsp;·&nbsp;
+                Skin: <span th:text="${styleRequest.skinTone}"></span> &nbsp;·&nbsp;
+                Style: <span th:text="${styleRequest.stylePreference}"></span>
+            </div>
+            <a class="edit-profile-btn" th:if="${featureId != null}" th:href="@{/style/edit/{id}(id=${featureId})}">
+                ✏️ Edit Features
+            </a>
+        </div>
+
+        <div th:each="rec : ${recommendations}" class="rec-card">
+            <div class="rec-dot"></div>
+            <span class="rec-text" th:text="${rec.description}"></span>
+            <form class="like-form" th:action="@{/style/like/{id}(id=${rec.recommendationId})}" method="post" style="margin:0;">
+                <button type="submit" class="like-btn">♥ Save Style</button>
+            </form>
+        </div>
+
+        <div class="bottom-actions">
+            <a class="btn-outline" th:href="@{/style}">← Try Again</a>
+            <a class="btn btn-primary" th:href="@{/style/liked}">View Saved Styles</a>
+        </div>
+    </div>
+</main>
+
+<script>
+document.querySelectorAll('.like-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var btn = form.querySelector('.like-btn');
+        var csrfInput = form.querySelector('[name="_csrf"]');
+        var body = csrfInput ? '_csrf=' + encodeURIComponent(csrfInput.value) : '';
+
+        btn.textContent = 'Saving...';
+        btn.disabled = true;
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body
+        }).then(function() {
+            btn.textContent = '✓ Saved';
+            btn.style.background = '#e6f4ea';
+            btn.style.color = '#137333';
+            btn.style.border = '1px solid #ceead6';
+        }).catch(function() {
+            btn.textContent = '♥ Save Style';
+            btn.disabled = false;
+        });
+    });
+});
+</script>
+</body>
+</html>

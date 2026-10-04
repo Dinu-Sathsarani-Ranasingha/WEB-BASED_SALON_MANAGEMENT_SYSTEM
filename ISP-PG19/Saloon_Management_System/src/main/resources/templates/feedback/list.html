@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Feedbacks & Ratings - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; min-height: 100vh; background-color: var(--background); padding-bottom: 4rem; }
+        .dashboard-header { padding: 4rem; background: var(--surface-container-low); border-bottom: 1px solid rgba(233, 30, 99, 0.1); }
+        .dashboard-header h1 { font-size: 3rem; margin-bottom: 0.5rem; }
+        .dashboard-header h1 .italic { font-style: italic; color: var(--primary); }
+
+        .content-body { padding: 4rem; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+        @media(max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+
+        .dash-card { background: var(--surface); padding: 2.5rem; border-radius: 2.5rem; border: 1px solid rgba(233,30,99,0.1); box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .card-head { font-family: 'Playfair Display', serif; font-size: 1.75rem; color: var(--on-surface); margin-bottom: 2rem; border-bottom: 1px solid var(--surface-variant); padding-bottom: 1rem;}
+
+        .edit-badge { display: inline-block; background: var(--primary-container); color: var(--primary); padding: 0.4rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        .error-msg { color: var(--primary); font-size: 0.75rem; margin-top: -15px; margin-bottom: 15px; display: block; font-weight: 600; }
+
+        /* Star Rating Form UI */
+        .star-row { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 5px; margin-bottom: 20px; }
+        .star-row input[type="radio"] { display: none; }
+        .star-row label { font-size: 2.5rem; color: var(--outline); cursor: pointer; transition: color 0.2s; line-height: 1; }
+        .star-row input:checked ~ label, .star-row label:hover, .star-row label:hover ~ label { color: var(--primary); }
+
+        /* Entry Lists */
+        .entry { padding: 1.5rem; border-radius: 1.5rem; border: 1px solid var(--surface-variant); margin-bottom: 1rem; background: var(--background); transition: border-color 0.3s; }
+        .entry:hover { border-color: var(--primary); }
+        .entry-top { display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: center; }
+        .entry-name { font-weight: 700; color: var(--on-surface); }
+        .entry-date { font-size: 0.8rem; color: var(--on-surface-variant); font-weight: 600;}
+        .entry-body { color: var(--on-surface-variant); font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.6; }
+        .entry-stars { color: var(--primary); font-size: 1.2rem; letter-spacing: 2px; }
+
+        .tag-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+        .tag { font-size: 0.7rem; padding: 0.2rem 0.8rem; border-radius: 9999px; font-weight: 700; background: var(--surface-container-high); color: var(--on-surface-variant); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .entry-actions { margin-top: 1.5rem; display: flex; gap: 0.5rem; }
+        .act-link { font-size: 0.7rem; padding: 0.4rem 1rem; border-radius: 0.5rem; text-decoration: none; border: 1px solid var(--outline); color: var(--on-surface-variant); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.2s; }
+        .act-link:hover { background: var(--primary-container); color: var(--primary); border-color: var(--primary); }
+    </style>
+</head>
+<body>
+<!-- feedback list -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="dashboard-header">
+        <span style="display:block; margin-bottom:1rem; color:var(--primary); font-size: 0.75rem; letter-spacing: 0.2em; font-weight: 700; text-transform: uppercase;">Customer Voice</span>
+        <h1>Feedbacks &amp; <span class="italic">Ratings</span></h1>
+    </div>
+
+    <div class="content-body">
+        <div class="grid">
+
+            <div class="dash-card">
+                <div class="card-head">Leave a Comment</div>
+
+                <span class="edit-badge" th:if="${feedback.feedbackId != null}">
+                    ✏ Editing #<span th:text="${feedback.feedbackId}"></span>
+                </span>
+
+                <form th:action="${feedback.feedbackId != null} ? @{/feedback/edit/{id}(id=${feedback.feedbackId})} : @{/feedback/create}"
+                      th:object="${feedback}" method="post" novalidate>
+
+                    <input type="hidden" th:if="${feedback.feedbackId != null}" th:field="*{feedbackId}" />
+
+                    <label class="form-label">Name *</label>
+                    <input type="text" th:field="*{name}" class="form-control" placeholder="Your name"/>
+                    <span class="error-msg" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label class="form-label">Service Received</label>
+                            <select th:field="*{service}" class="form-control">
+                                <option value="Any Service">Any Service (General)</option>
+                                <option th:each="style : ${serviceStyles}"
+                                        th:value="${style.styleName}"
+                                        th:text="${style.styleName}">
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Staff Member</label>
+                            <select th:field="*{staffMember}" class="form-control">
+                                <option value="Any Staff">Any Staff (General)</option>
+
+                                <option th:each="staff : ${staffList}"
+                                        th:if="${#strings.toString(staff.role) == 'STAFF'}"
+                                        th:value="${staff.firstName + ' ' + staff.lastName}"
+                                        th:text="${staff.firstName + ' ' + staff.lastName}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label class="form-label">Comment *</label>
+                    <textarea th:field="*{comment}" class="form-control" rows="4" placeholder="Share your experience..."></textarea>
+                    <span class="error-msg" th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}"></span>
+
+                    <button type="submit" class="btn btn-primary" th:text="${feedback.feedbackId != null} ? 'Update Comment' : 'Post Comment'"></button>
+                </form>
+
+                <div style="margin: 3rem 0; border-top: 1px solid var(--surface-variant);"></div>
+
+                <div th:if="${#lists.isEmpty(feedbacks)}" style="text-align:center; color:var(--outline); padding: 2rem;">You haven't left any comments yet.</div>
+
+                <div class="entry" th:each="fb : ${feedbacks}">
+                    <div class="entry-top">
+                        <span class="entry-name" th:text="${fb.name}"></span>
+                        <span class="entry-date" th:text="${fb.date}"></span>
+                    </div>
+                    <div class="tag-row" th:if="${!#strings.isEmpty(fb.service) or !#strings.isEmpty(fb.staffMember)}">
+                        <span class="tag" th:if="${!#strings.isEmpty(fb.service)}" th:text="${fb.service}"></span>
+                        <span class="tag" th:if="${!#strings.isEmpty(fb.staffMember)}" th:text="${fb.staffMember}"></span>
+                    </div>
+                    <div class="entry-body" th:text="${fb.comment}"></div>
+                    <div class="entry-actions">
+                        <a class="act-link" th:href="@{/feedback/edit/{id}(id=${fb.feedbackId})}">Edit</a>
+                        <a class="act-link" th:href="@{/feedback/delete/{id}(id=${fb.feedbackId})}" onclick="return confirm('Delete comment?')" style="color:#e11d48; border-color:#fecdd3; background:#fff1f2;">Delete</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dash-card">
+                <div class="card-head">Leave a Rating</div>
+
+                <span class="edit-badge" th:if="${rating.ratingId != null}">
+                    ✏ Editing #<span th:text="${rating.ratingId}"></span>
+                </span>
+
+                <form th:action="${rating.ratingId != null} ? @{/feedback/rating/edit/{id}(id=${rating.ratingId})} : @{/feedback/rating/create}"
+                      th:object="${rating}" method="post" novalidate>
+
+                    <input type="hidden" name="_ratingId_unused" th:if="${rating.ratingId != null}" th:value="${rating.ratingId}" />
+
+                    <label class="form-label">Name *</label>
+                    <input type="text" th:field="*{name}" class="form-control" placeholder="Your name"/>
+                    <span class="error-msg" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label class="form-label">Service Received</label>
+                            <select th:field="*{service}" class="form-control" th:classappend="${#fields.hasErrors('service')} ? 'error-field'">
+                                <option value="Any Service">Any Service (General)</option>
+
+                                <option th:each="style : ${serviceStyles}"
+                                        th:value="${style.styleName}"
+                                        th:text="${style.styleName}">
+                                </option>
+                            </select>
+                            <span class="error-msg" th:if="${#fields.hasErrors('service')}" th:errors="*{service}"></span>
+                        </div>
+                        <div>
+                            <label class="form-label">Staff Member</label>
+                            <select th:field="*{staffMember}" class="form-control" th:classappend="${#fields.hasErrors('staffMember')} ? 'error-field'">
+                                <option value="Any Staff">Any Staff (General)</option>
+
+                                <option th:each="staff : ${staffList}"
+                                        th:if="${#strings.toString(staff.role) == 'STAFF'}"
+                                        th:value="${staff.firstName + ' ' + staff.lastName}"
+                                        th:text="${staff.firstName + ' ' + staff.lastName}">
+                                </option>
+                            </select>
+                            <span class="error-msg" th:if="${#fields.hasErrors('staffMember')}" th:errors="*{staffMember}"></span>
+                        </div>
+                    </div>
+
+                    <label class="form-label">Select Stars *</label>
+                    <div class="star-row">
+                        <input type="radio" th:field="*{rating}" id="star5" value="5"/><label for="star5">★</label>
+                        <input type="radio" th:field="*{rating}" id="star4" value="4"/><label for="star4">★</label>
+                        <input type="radio" th:field="*{rating}" id="star3" value="3"/><label for="star3">★</label>
+                        <input type="radio" th:field="*{rating}" id="star2" value="2"/><label for="star2">★</label>
+                        <input type="radio" th:field="*{rating}" id="star1" value="1"/><label for="star1">★</label>
+                    </div>
+                    <span class="error-msg" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></span>
+
+                    <button type="submit" class="btn btn-primary" th:text="${rating.ratingId != null} ? 'Update Rating' : 'Post Rating'"></button>
+                </form>
+
+                <div style="margin: 3rem 0; border-top: 1px solid var(--surface-variant);"></div>
+
+                <div th:if="${#lists.isEmpty(ratings)}" style="text-align:center; color:var(--outline); padding: 2rem;">You haven't left any ratings yet.</div>
+
+                <div class="entry" th:each="r : ${ratings}">
+                    <div class="entry-top">
+                        <div>
+                            <span class="entry-name" th:text="${r.name}" style="margin-right: 10px;"></span>
+                            <span class="entry-stars" th:text="${r.rating == 1 ? '★☆☆☆☆' : r.rating == 2 ? '★★☆☆☆' : r.rating == 3 ? '★★★☆☆' : r.rating == 4 ? '★★★★☆' : '★★★★★'}"></span>
+                        </div>
+                        <span class="entry-date" th:text="${r.date}"></span>
+                    </div>
+
+                    <div class="tag-row" th:if="${!#strings.isEmpty(r.service) or !#strings.isEmpty(r.staffMember)}">
+                        <span class="tag" th:if="${!#strings.isEmpty(r.service)}" th:text="${r.service}"></span>
+                        <span class="tag" th:if="${!#strings.isEmpty(r.staffMember)}" th:text="${r.staffMember}"></span>
+                    </div>
+                    <div class="entry-actions">
+                        <a class="act-link" th:href="@{/feedback/rating/edit/{id}(id=${r.ratingId})}">Edit</a>
+                        <a class="act-link" th:href="@{/feedback/rating/delete/{id}(id=${r.ratingId})}" onclick="return confirm('Delete rating?')" style="color:#e11d48; border-color:#fecdd3; background:#fff1f2;">Delete</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+</body>

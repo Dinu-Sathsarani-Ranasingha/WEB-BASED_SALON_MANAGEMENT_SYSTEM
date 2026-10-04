@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 0; min-height: 100vh; background-color: var(--background); }
+
+        /* Dashboard Hero with Image Integration */
+        .dashboard-hero {
+            position: relative;
+            padding: 5rem 4rem;
+            background: var(--surface-container-low);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(233, 30, 99, 0.1);
+        }
+
+        .dashboard-header h1 { font-size: 3rem; margin-bottom: 0.5rem; }
+        .dashboard-header h1 .italic { font-style: italic; color: var(--primary); }
+        .hero-description { color: var(--on-surface-variant); font-size: 1.125rem; max-width: 500px; margin-bottom: 2.5rem; line-height: 1.8; }
+
+        /* Themed Hero Image Portrait */
+        .hero-portrait {
+            width: 350px;
+            height: 350px;
+            border-radius: 2.5rem;
+            overflow: hidden;
+            border: 8px solid white;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+        }
+        .hero-portrait img { width: 100%; height: 100%; object-fit: cover; }
+
+        .content-body { padding: 4rem; }
+
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem; }
+        .dash-card { background: var(--surface); padding: 3rem 2.5rem; border-radius: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.1); display: flex; flex-direction: column; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
+        .dash-card:hover { transform: translateY(-8px); box-shadow: 0 24px 48px rgba(233,30,99,0.1); border-color: var(--primary); }
+        .dash-card h3 { font-size: 1.75rem; margin-bottom: 1rem; color: var(--on-surface); }
+        .dash-card p { color: var(--on-surface-variant); font-size: 0.95rem; line-height: 1.7; margin-bottom: 2rem; flex-grow: 1; }
+
+        /* Icon Badge */
+        .icon-badge { width: 50px; height: 50px; background: var(--primary-container); border-radius: 1rem; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.5rem; margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="dashboard-hero">
+        <div class="dashboard-header">
+            <span class="hero-label" style="display:block; margin-bottom:1rem; color:var(--primary); font-size: 0.75rem; letter-spacing: 0.2em; font-weight: 700; text-transform: uppercase;">Member Dashboard</span>
+            <h1>Hello, <span class="italic" th:text="${#authentication.principal.username}"></span></h1>
+            <p class="hero-description">Experience a sanctuary where high-fashion editorial aesthetics meet personal care. We don't just provide services; we curate your identity.</p>
+
+            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                <a th:href="@{/customer/services}" class="btn btn-primary">Book Now</a>
+                <a th:href="@{/customer/profile}" class="btn btn-outline">Edit Profile</a>
+            </div>
+        </div>
+
+        <div class="hero-portrait">
+            <img th:src="@{/images/salon-bg-accent.jpg}" alt="Stylized Member Portrait">
+            <div style="text-align: center; margin-top: -30px; position: relative;">
+                <span style="font-family: 'Playfair Display', serif; font-size: 1.1rem; color: black; font-weight: bold; font-style: italic; background: white; padding: 2px 8px; border-radius: 4px;">Salon Harshi</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-body">
+        <div class="dashboard-grid">
+            <div class="dash-card">
+                <div class="icon-badge">📅</div>
+                <h3>Upcoming Appointments</h3>
+                <p>Track your scheduled sessions and view details about your upcoming salon experiences.</p>
+                <a th:href="@{/appointments/my-history}" class="btn btn-primary" style="text-align: center; font-size: 0.7rem;">View My Schedule</a>
+            </div>
+
+            <div class="dash-card">
+                <div class="icon-badge">✨</div>
+                <h3>Latest Styles</h3>
+                <p>Discover the trending editorial looks and seasonal packages curated just for you.</p>
+                <a th:href="@{/customer/services}" class="btn btn-outline" style="text-align: center; font-size: 0.7rem;">Explore Catalog</a>
+            </div>
+
+            <div class="dash-card">
+                <div class="icon-badge">🌟</div>
+                <h3>Customer Highlights</h3>
+                <p>Read through top reviews, inspiring transformations, and feedback from our wonderful clients.</p>
+                <a th:href="@{/feedback/highlights}" class="btn btn-primary" style="text-align: center; font-size: 0.7rem;">View Highlights</a>
+            </div>
+            <div class="dash-card">
+                <div class="icon-badge">🛍️</div>
+                <h3>Purchase History</h3>
+                <p>View a complete breakdown of every service and package you have purchased across all your appointments.</p>
+                <a th:href="@{/customer/purchase-history}" class="btn btn-outline" style="text-align: center; font-size: 0.7rem;">View Purchases</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

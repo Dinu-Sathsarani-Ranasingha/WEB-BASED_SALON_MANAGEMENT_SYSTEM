@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Special Packages - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 4rem; background-color: var(--background); min-height: 100vh; }
+        .header-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; border-bottom: 1px solid rgba(176,75,90,0.1); padding-bottom: 1.5rem; }
+        .page-title { font-size: 2.5rem; }
+        .page-title .italic { font-style: italic; color: var(--primary); }
+
+        /* Cart Badge Styling */
+        .cart-trigger { background: var(--surface); border: 1px solid var(--primary); color: var(--primary); padding: 0.8rem 1.5rem; border-radius: 9999px; font-weight: 700; cursor: pointer; transition: 0.3s; position: relative; }
+        .cart-trigger:hover { background: var(--primary); color: white; }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--primary); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
+
+        /* Package Grid and Cards */
+        .package-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2.5rem; }
+        .pkg-card { background: var(--surface); padding: 3rem; border-radius: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.1); display: flex; flex-direction: column; transition: all 0.4s; }
+        .pkg-card:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: 0 16px 32px rgba(233,30,99,0.08); }
+        .pkg-card h3 { font-family: 'Playfair Display', serif; font-size: 1.75rem; margin-bottom: 0.5rem; }
+        .pkg-price { color: var(--primary); font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; }
+        .pkg-desc { color: var(--on-surface-variant); font-size: 0.9rem; margin-bottom: 2rem; line-height: 1.6; }
+
+        /* Nested Service List inside Package */
+        .inclusion-list { background: var(--surface-container-low); border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 2rem; flex-grow: 1; }
+        .inclusion-item { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.8rem; color: var(--on-surface); }
+        .inclusion-item:last-child { margin-bottom: 0; }
+
+        /* Drawer Styling */
+        .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.2); backdrop-filter: blur(4px); z-index: 998; display: none; }
+
+        .cart-drawer {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 350px;
+            height: 100vh;
+            background: var(--surface);
+            z-index: 999;
+            transition: 0.4s;
+            padding: 0; /* Updated */
+            box-sizing: border-box; /* Updated */
+            display: flex;
+            flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+        }
+        .cart-drawer.open { right: 0; }
+
+        /* New Drawer Internal Spacing */
+        .cart-drawer h2 { padding: 2rem 2rem 1rem 2rem; margin: 0; }
+        #cartItemsContainer { padding: 0 2rem; flex-grow: 1; overflow-y: auto; }
+        .cart-footer-area {
+            padding: 2rem;
+            border-top: 1px solid rgba(176,75,90,0.1);
+            background: var(--surface);
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="header-section">
+        <div>
+            <span class="form-label" style="color:var(--primary);">Exclusive Edits</span>
+            <h1 class="page-title">Special <span class="italic">Packages</span></h1>
+        </div>
+        <button class="cart-trigger" onclick="toggleCart()">
+            🛒 Selection <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+    </div>
+
+    <div class="package-grid" id="packagesGrid">
+        <p>Curating our limited collections...</p>
+    </div>
+</main>
+
+<div class="drawer-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+    <h2 style="font-family: 'Playfair Display', serif;">Selection</h2>
+
+    <div id="cartItemsContainer"></div>
+
+    <div class="cart-footer-area">
+        <div style="display:flex; justify-content:space-between; font-weight:700; margin-bottom:1.5rem;">
+            <span>Total</span>
+            <span id="cartTotal">LKR 0.00</span>
+        </div>
+        <button class="btn btn-primary" style="width:100%;" onclick="checkout()">Checkout</button>
+    </div>
+</div>
+
+<script>
+    let cart = JSON.parse(localStorage.getItem('harshiCart')) || [];
+
+    async function loadPackages() {
+        try {
+            const res = await fetch('/api/packages/categories?includeItems=true');
+            if(res.ok) {
+                const packages = await res.json();
+                renderPackages(packages);
+            }
+        } catch (e) {
+            document.getElementById('packagesGrid').innerHTML = '<p style="color:red;">Failed to load packages.</p>';
+        }
+    }
+
+    function renderPackages(packages) {
+        const grid = document.getElementById('packagesGrid');
+        if (packages.length === 0) {
+            grid.innerHTML = '<p>No collections available today.</p>';
+            return;
+        }
+        grid.innerHTML = packages.map(pkg => `
+            <div class="pkg-card">
+                <h3>${pkg.name}</h3>
+                <div class="pkg-price">LKR ${pkg.totalPrice}</div>
+                <p class="pkg-desc">${pkg.description || 'A complete curation tailored for your radiance.'}</p>
+
+                <div class="inclusion-list">
+                    <div style="font-weight:700; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--primary); margin-bottom:1rem;">Inclusions</div>
+                    ${(pkg.items || []).map(item => `
+                        <div class="inclusion-item">
+                            <span>• ${item.name}</span>
+                            <span style="font-weight:700; color:var(--primary);">LKR ${item.price}</span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <button class="btn btn-primary" onclick="addToCart('PACKAGE', ${pkg.id}, '${pkg.name}', ${pkg.totalPrice})">
+                    + Add to Selection
+                </button>
+            </div>
+        `).join('');
+    }
+
+    function toggleCart() {
+        const drawer = document.getElementById('cartDrawer');
+        const overlay = document.getElementById('cartOverlay');
+        drawer.classList.toggle('open');
+        overlay.style.display = drawer.classList.contains('open') ? 'block' : 'none';
+    }
+
+    function addToCart(type, id, name, price) {
+        cart.push({ type, id, name, price });
+        saveAndRenderCart();
+    }
+
+    // Updated render function with Remove logic and Empty State
+    function saveAndRenderCart() {
+        localStorage.setItem('harshiCart', JSON.stringify(cart));
+        document.getElementById('cartBadge').innerText = cart.length;
+        const container = document.getElementById('cartItemsContainer');
+        let total = 0;
+
+        if (cart.length === 0) {
+            container.innerHTML = `<p style="text-align:center; color:var(--outline); margin-top:2rem;">Your selection is empty.</p>`;
+            document.getElementById('cartTotal').innerText = `LKR 0.00`;
+            return;
+        }
+
+        container.innerHTML = cart.map((item, idx) => {
+            total += item.price;
+            return `
+                <div style="padding:1.2rem 0; border-bottom:1px solid rgba(0,0,0,0.05); position:relative; display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="max-width: 85%;">
+                        <div style="font-weight:700; font-size:0.85rem; color:var(--on-surface);">${item.name}</div>
+                        <div style="color:var(--primary); font-size:0.8rem; font-weight:700; margin-top:4px;">LKR ${item.price.toFixed(2)}</div>
+                    </div>
+                    <button onclick="removeFromCart(${idx})"
+                            style="background:none; border:none; color:var(--outline); cursor:pointer; font-size:1.1rem; padding:0 5px; transition:0.2s;"
+                            onmouseover="this.style.color='var(--primary)'"
+                            onmouseout="this.style.color='var(--outline)'">
+                        ✕
+                    </button>
+                </div>`;
+        }).join('');
+
+        document.getElementById('cartTotal').innerText = `LKR ${total.toFixed(2)}`;
+    }
+
+    // New Remove Function
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        saveAndRenderCart();
+    }
+
+    function checkout() {
+        window.location.href = "/customer/book"; // Correct mapping!
+    }
+
+    saveAndRenderCart();
+    loadPackages();
+</script>
+</body>
+</html>

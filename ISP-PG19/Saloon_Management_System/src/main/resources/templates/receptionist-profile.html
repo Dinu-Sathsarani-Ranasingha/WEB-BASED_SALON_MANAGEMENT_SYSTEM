@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 3rem 4rem; min-height: 100vh; background-color: var(--background); }
+        .page-header { margin-bottom: 3rem; border-bottom: 1px solid rgba(233, 30, 99, 0.1); padding-bottom: 1.5rem; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--on-surface); margin: 0; }
+        .page-title .italic { font-style: italic; color: var(--primary); }
+
+        .profile-card { background: var(--surface); padding: 4rem; border-radius: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.05); max-width: 800px; }
+
+        .section-label { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--on-surface); margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--surface-container); }
+
+        .profile-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--surface-container-low); }
+        .profile-item:last-child { border-bottom: none; }
+
+        .label-text { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--on-surface-variant); }
+        .value-text { font-weight: 600; color: var(--on-surface); }
+
+        .status-badge { padding: 6px 14px; background: #e8f5e9; color: #2e7d32; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .role-badge { padding: 6px 14px; background: var(--primary-container); color: var(--primary); border-radius: 9999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+
+        .card-actions { margin-top: 3rem; display: flex; gap: 1.5rem; border-top: 1px solid var(--surface-container); padding-top: 2rem; }
+    </style>
+</head>
+<body>
+
+<aside style="width:260px; background:var(--surface); height:100vh; position:fixed; top:0; left:0; padding:2rem; box-sizing:border-box; border-right: 1px solid rgba(233, 30, 99, 0.15); display: flex; flex-direction: column; z-index: 100;">
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--on-surface); margin-bottom: 0.5rem; text-align: center;">Salon <span style="font-style: italic; color: var(--primary);">Harshi</span></h3>
+    <div style="text-align: center; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--primary); margin-bottom: 3rem; font-weight: 700;">Front Desk</div>
+    <ul style="list-style:none; padding:0; flex-grow: 1;">
+        <li style="margin: 0.5rem 0;"><a th:href="@{/reception/dashboard}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant);">Dashboard</a></li>
+        <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">Operations</li>
+        <li style="margin: 0.5rem 0;"><a th:href="@{/admin/daily-appointments}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant);">Daily Appointments</a></li>
+        <li style="margin: 0.5rem 0;"><a th:href="@{/reception/staff-view}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant);">Staff Availability</a></li>
+        <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">Account</li>
+        <li style="margin: 0.5rem 0;"><a th:href="@{/reception/profile}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; background:var(--primary-container); color:var(--primary);">My Profile</a></li>
+    </ul>
+    <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--surface-container-high); text-align: center;">
+        <a th:href="@{/logout}" style="color: var(--on-surface-variant); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">Sign Out</a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">Personal <span class="italic">Identity</span></h1>
+    </div>
+
+    <div class="profile-card">
+        <h2 class="section-label" style="margin-top:0;">Account Identity</h2>
+        <div class="profile-item">
+            <span class="label-text">Full Name</span>
+            <span class="value-text" th:text="${employee.firstName + ' ' + employee.lastName}">Jane Doe</span>
+        </div>
+        <div class="profile-item">
+            <span class="label-text">Official Email</span>
+            <span class="value-text" th:text="${employee.email}">jane@salonharshi.lk</span>
+        </div>
+        <div class="profile-item">
+            <span class="label-text">Username</span>
+            <span class="value-text" th:text="${employee.username}">jane_reception</span>
+        </div>
+
+        <h2 class="section-label">Professional Standing</h2>
+        <div class="profile-item">
+            <span class="label-text">Position</span>
+            <span class="role-badge">Receptionist</span>
+        </div>
+        <div class="profile-item">
+            <span class="label-text">Work Schedule</span>
+            <span class="value-text" th:text="${employee.workStartTime + ' — ' + employee.workEndTime}">09:00 — 18:00</span>
+        </div>
+        <div class="profile-item">
+            <span class="label-text">System Access</span>
+            <span class="status-badge" th:text="${employee.accStatus}">Active</span>
+        </div>
+
+        <div class="card-actions">
+            <a th:href="@{/reception/profile/edit}" class="btn btn-primary">Edit Details</a>
+            <a th:href="@{/reception/change-password}" class="btn btn-outline">Security Settings</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

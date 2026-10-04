@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 3rem 4rem; min-height: 100vh; background-color: var(--background); }
+
+        .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; border-bottom: 1px solid rgba(233, 30, 99, 0.1); padding-bottom: 1.5rem; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--on-surface); margin: 0; }
+        .page-title .italic { font-style: italic; color: var(--primary); }
+
+        .search-section { background: var(--surface); padding: 2rem; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 3rem; border: 1px solid rgba(233,30,99,0.05); }
+        .search-container { display: flex; gap: 1rem; align-items: center; }
+        .search-input { flex-grow: 1; padding: 12px 20px; border: 1px solid var(--outline); border-radius: 9999px; font-family: 'Inter', sans-serif; }
+        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-container); }
+
+        .table-container { background: var(--surface); border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); padding: 2rem; margin-bottom: 3rem; border: 1px solid rgba(233,30,99,0.05); }
+        .table-header h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--on-surface); }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        th { text-align: left; padding: 1rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--on-surface-variant); border-bottom: 2px solid var(--surface-container); }
+        td { padding: 1.2rem 1rem; font-size: 0.9rem; color: var(--on-surface); border-bottom: 1px solid var(--surface-container); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+
+        .name-column { font-weight: 700; }
+
+        .role-badge, .status-badge { padding: 6px 12px; border-radius: 9999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .role-owner { background: var(--surface-variant); color: var(--on-surface-variant); }
+        .role-staff { background: var(--primary-container); color: var(--primary); }
+        .role-customer { background: #e8f5e9; color: #2e7d32; }
+
+        .status-active { background: #e8f5e9; color: #2e7d32; }
+        .status-inactive { background: #ffebee; color: #c62828; }
+
+        .action-btn { font-size: 0.7rem; padding: 8px 16px; border-radius: 9999px; font-weight: 700; text-transform: uppercase; cursor: pointer; border: none; transition: all 0.3s; }
+        .btn-deactivate { background: white; border: 1px solid #c62828; color: #c62828; }
+        .btn-deactivate:hover { background: #ffebee; }
+        .btn-activate { background: white; border: 1px solid #2e7d32; color: #2e7d32; }
+        .btn-activate:hover { background: #e8f5e9; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<aside style="width: 260px; background: var(--surface); height: 100vh; position: fixed; top: 0; left: 0; padding: 2rem; box-sizing: border-box; border-right: 1px solid rgba(233, 30, 99, 0.15); display: flex; flex-direction: column; z-index: 100; overflow-y: auto;">    <a th:href="@{/}" style="text-decoration: none;">
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--on-surface); margin-bottom: 0.5rem; text-align: center;">
+            Salon <span style="font-style: italic; color: var(--primary);">Harshi</span>
+        </h3>
+    </a>
+
+    <div style="text-align: center; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--primary); margin-bottom: 3rem; font-weight: 700;">Admin Portal</div>
+
+    <ul style="list-style:none; padding:0; flex-grow: 1;">
+        <li style="margin: 0.5rem 0;">
+            <a th:href="@{/}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;" onmouseover="this.style.background='var(--primary-container)'; this.style.color='var(--primary)'" onmouseout="this.style.background='none'; this.style.color='var(--on-surface-variant)'">
+                Home Page
+            </a>
+        </li>
+
+        <li style="margin: 0.5rem 0;">
+            <a th:href="@{/owner/dashboard}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; background:var(--primary-container); color:var(--primary); transition: all 0.3s;">
+                Admin Dashboard
+            </a>
+        </li>
+
+        <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">Management</li>
+
+        <li style="margin: 0.5rem 0;">
+            <a th:href="@{/admin/manage-categories}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;" onmouseover="this.style.background='var(--primary-container)'; this.style.color='var(--primary)'" onmouseout="this.style.background='none'; this.style.color='var(--on-surface-variant)'">
+                Manage Services
+            </a>
+        </li>
+        <li style="margin: 0.5rem 0;">
+            <a th:href="@{/admin/manage-packages}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;" onmouseover="this.style.background='var(--primary-container)'; this.style.color='var(--primary)'" onmouseout="this.style.background='none'; this.style.color='var(--on-surface-variant)'">
+                Manage Packages
+            </a>
+        </li>
+
+        <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">Team</li>
+
+        <li style="margin: 0.5rem 0;">
+            <a th:href="@{/owner/create-employee}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;" onmouseover="this.style.background='var(--primary-container)'; this.style.color='var(--primary)'" onmouseout="this.style.background='none'; this.style.color='var(--on-surface-variant)'">
+                Create Employee
+            </a>
+        </li>
+        <li style="margin: 0.5rem 0;">
+            <a th:href="@{/owner/user-activity}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;" onmouseover="this.style.background='var(--primary-container)'; this.style.color='var(--primary)'" onmouseout="this.style.background='none'; this.style.color='var(--on-surface-variant)'">
+                User Activity
+            </a>
+        </li>
+
+        <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">Operations</li>
+
+        <li style="margin: 0.5rem 0;">
+            <a th:href="@{/admin/daily-appointments}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;"
+               onmouseover="this.style.background='var(--primary-container)'; this.style.color='var(--primary)'"
+               onmouseout="this.style.background='none'; this.style.color='var(--on-surface-variant)'">
+                Daily Appointments
+            </a>
+        </li>
+
+    </ul>
+
+    <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--surface-container-high); text-align: center;">
+        <a th:href="@{/logout}" style="color: var(--on-surface-variant); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">Sign Out</a>
+    </div>
+</aside>
+
+<main class="main-content">
+
+    <!-- Success Message -->
+    <div th:if="${successMessage}"
+         style="background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; border-radius:12px;
+            padding:1rem 1.5rem; margin-bottom:2rem; font-weight:600; display:flex;
+            align-items:center; gap:0.75rem;">
+        <span>✓</span>
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Management <span class="italic">Overview</span></h1>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <a th:href="@{/owner/create-employee}" class="btn btn-primary">Add Employee</a>
+            <a th:href="@{/owner/user-activity}" class="btn btn-outline">View Activity</a>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Revenue Overview (Current Year)</h3>
+        </div>
+        <div style="width: 100%; height: 350px;">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+
+    <div class="search-section">
+        <form method="get" th:action="@{/owner/dashboard}">
+            <div class="search-container">
+                <input type="text" name="search" class="search-input" placeholder="Search by name, username or email..." th:value="${search}">
+                <button type="submit" class="btn btn-primary" style="padding: 12px 24px;">Search</button>
+                <a th:href="@{/owner/dashboard}" class="btn btn-outline" style="padding: 12px 24px;">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-container" th:if="${employees} and ${employees.size() > 0}">
+        <div class="table-header">
+            <h3>Staff Members</h3>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="employee : ${employees}">
+                <td class="name-column" th:text="${employee.firstName + ' ' + employee.lastName}">John Doe</td>
+                <td th:text="${employee.username}">john_doe</td>
+                <td><span class="role-badge" th:classappend="|role-${employee.role.toString().toLowerCase()}|" th:text="${employee.role}">STAFF</span></td>
+                <td th:text="${employee.email}">email@salon.com</td>
+                <td><span class="status-badge" th:classappend="${employee.accStatus == 'ACTIVE' ? 'status-active' : 'status-inactive'}" th:text="${employee.accStatus}">ACTIVE</span></td>
+                <td>
+                    <form th:if="${employee.accStatus == 'ACTIVE'}" th:action="@{/owner/employee/deactivate/{id}(id=${employee.employeeId})}" method="post" style="display: inline;">
+                        <button type="submit" class="action-btn btn-deactivate">Deactivate</button>
+                    </form>
+                    <form th:unless="${employee.accStatus == 'ACTIVE'}" th:action="@{/owner/employee/activate/{id}(id=${employee.employeeId})}" method="post" style="display: inline;">
+                        <button type="submit" class="action-btn btn-activate">Activate</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container" th:if="${customers} and ${customers.size() > 0}">
+        <div class="table-header">
+            <h3>Registered Customers</h3>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="customer : ${customers}">
+                <td class="name-column" th:text="${customer.name}">Jane Smith</td>
+                <td th:text="${customer.username}">jane_smith</td>
+                <td th:text="${customer.email}">client@email.com</td>
+                <td th:text="${customer.phoneNumber}">0771234567</td>
+                <td><span class="status-badge" th:classappend="${customer.accStatus == 'ACTIVE' ? 'status-active' : 'status-inactive'}" th:text="${customer.accStatus}">ACTIVE</span></td>
+                <td>
+                    <form th:if="${customer.accStatus == 'ACTIVE'}" th:action="@{/owner/customer/deactivate/{id}(id=${customer.customerId})}" method="post" style="display: inline;">
+                        <button type="submit" class="action-btn btn-deactivate">Deactivate</button>
+                    </form>
+                    <form th:unless="${customer.accStatus == 'ACTIVE'}" th:action="@{/owner/customer/activate/{id}(id=${customer.customerId})}" method="post" style="display: inline;">
+                        <button type="submit" class="action-btn btn-activate">Activate</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetchRevenueData();
+    });
+
+    function fetchRevenueData() {
+        const currentYear = new Date().getFullYear();
+
+        fetch(`/api/admin/reports/revenue/${currentYear}`)
+            .then(response => response.json())
+            .then(data => {
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+                // Initialize an array with 0 for all 12 months to prevent breaks in the graph
+                const revenues = new Array(12).fill(0);
+
+                // Map the database results to the correct month index (month is 1-12, index is 0-11)
+                data.forEach(item => {
+                    if (item.month >= 1 && item.month <= 12) {
+                        revenues[item.month - 1] = item.totalRevenue;
+                    }
+                });
+
+                renderChart(monthNames, revenues);
+            })
+            .catch(error => console.error("Error fetching report data:", error));
+    }
+
+    function renderChart(labels, dataPoints) {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Monthly Revenue (Rs)',
+                    data: dataPoints,
+                    backgroundColor: 'rgba(233, 30, 99, 0.7)', // Harshi Salon accent color
+                    borderColor: 'rgba(233, 30, 99, 1)',
+                    borderWidth: 1,
+                    borderRadius: 6 // Rounds the top of the bars for a modern UI feel
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' Rs ' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

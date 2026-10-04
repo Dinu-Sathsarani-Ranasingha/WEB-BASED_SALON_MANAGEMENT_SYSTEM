@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saloon Harshi - Beauty & Care</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #e91e63;              /* main pink */
+            --primary-container: #fde4ec;   /* light blush */
+            --on-primary: #ffffff;
+            --on-primary-container: #4a0b1f;
+
+            --secondary: #f48fb1;           /* soft pink */
+            --secondary-container: #ffe4f1;
+
+            --background: #fff7fa;          /* very light pink background */
+            --surface: #fff7fa;
+            --surface-variant: #f8d7e6;
+
+            --on-surface: #2a121a;
+            --on-surface-variant: #6b4a57;
+
+            --outline: #d48aa3;
+
+            --surface-container: #ffeaf2;
+            --surface-container-low: #fff0f6;
+            --surface-container-high: #ffe0ec;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--on-surface);
+            line-height: 1.6;
+        }
+
+        .serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Navigation */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 50;
+            background: rgba(255, 250, 250, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(233, 30, 99, 0.15);
+            padding: 1rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: none;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+        }
+
+        .nav-links a {
+            color: var(--on-surface-variant);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.625rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        /* Main Content */
+        main {
+            padding-top: 80px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--surface-container-low);
+            padding: 3rem 2rem;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            .hero-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .hero-content h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.01em;
+        }
+
+        @media (min-width: 768px) {
+            .hero-content h1 {
+                font-size: 3.5rem;
+            }
+        }
+
+        .hero-content h1 .italic {
+            font-style: italic;
+            color: var(--primary);
+        }
+
+        .hero-content h1 .bold {
+            font-weight: 700;
+        }
+
+        .hero-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .hero-description {
+            color: var(--on-surface-variant);
+            font-size: 1.125rem;
+            max-width: 500px;
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 8px 16px rgba(233, 30, 99, 0.18);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--on-primary);
+        }
+
+        .btn-primary:hover {
+            background: #d81b60;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(233, 30, 99, 0.25);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: rgba(176, 75, 90, 0.05);
+        }
+
+        /* Hero Images */
+        .hero-images {
+            position: relative;
+            height: 500px;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .hero-images {
+                display: block;
+            }
+        }
+
+        .hero-main-image {
+            position: absolute;
+            inset: 0;
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-secondary-image {
+            position: absolute;
+            bottom: -40px;
+            left: -40px;
+            width: 200px;
+            height: 200px;
+            border-radius: 2rem;
+            overflow: hidden;
+            border: 8px solid white;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .hero-secondary-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Services Section */
+        .services {
+            padding: 5rem 2rem;
+            background: white;
+        }
+
+        .services-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .services-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 4rem;
+            border-bottom: 1px solid rgba(176, 75, 90, 0.1);
+            padding-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .services-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .services-title .italic {
+            font-style: italic;
+            color: var(--primary);
+        }
+
+        .services-underline {
+            height: 4px;
+            width: 80px;
+            background: rgba(176, 75, 90, 0.3);
+            margin-top: 0.5rem;
+        }
+
+        .services-view-all {
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid rgba(176, 75, 90, 0.2);
+            padding-bottom: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .services-view-all:hover {
+            border-bottom-color: var(--primary);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: var(--surface-container-low);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.5s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .service-card:hover {
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+            background: var(--surface-container-high);
+        }
+
+        .service-image {
+            width: 100%;
+            height: 200px;
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .service-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s;
+        }
+
+        .service-card:hover .service-image img {
+            transform: scale(1.05);
+        }
+
+        .service-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .service-card p {
+            color: var(--on-surface-variant);
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .service-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .service-price {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .service-arrow {
+            color: var(--primary);
+        }
+
+        /* Packages Section */
+        .packages {
+            padding: 6rem 2rem;
+            background: var(--surface-container-low);
+        }
+
+        .packages-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .packages-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .packages-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .packages-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-top: 1rem;
+            margin-bottom: 0;
+        }
+
+        .packages-header h2 .italic {
+            font-style: italic;
+        }
+
+        .packages-header h2 .bold {
+            font-weight: 700;
+        }
+
+        .packages-list {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .package-card {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0;
+            background: white;
+            border-radius: 2.5rem;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(176, 75, 90, 0.1);
+        }
+
+        @media (min-width: 768px) {
+            .package-card {
+                grid-template-columns: 40% 60%;
+            }
+
+            .package-card.reverse {
+                direction: rtl;
+            }
+
+            .package-card.reverse > * {
+                direction: ltr;
+            }
+        }
+
+        .package-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        @media (min-width: 768px) {
+            .package-image {
+                height: 100%;
+                min-height: 400px;
+            }
+        }
+
+        .package-content {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: var(--surface-container-lowest);
+        }
+
+        @media (min-width: 768px) {
+            .package-content {
+                padding: 4rem;
+            }
+        }
+
+        .package-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .package-content h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .package-features {
+            list-style: none;
+            margin-bottom: 2.5rem;
+        }
+
+        .package-features li {
+            color: var(--on-surface-variant);
+            padding: 0.75rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .package-features li::before {
+            content: '✓';
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .package-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .package-price {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .packages-view-all {
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .packages-view-all a {
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s;
+        }
+
+        .packages-view-all a:hover {
+            text-decoration: underline;
+        }
+
+        /* Testimonials Section */
+        .testimonials {
+            padding: 6rem 2rem;
+            background: rgba(176, 75, 90, 0.05);
+        }
+
+        .testimonials-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .testimonials-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .testimonials-title .italic {
+            font-style: italic;
+            color: var(--primary);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1.875rem;
+            border: 1px solid rgba(176, 75, 90, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            /* 1. Tell the card to animate smoothly */
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        /* 2. Define exactly what happens when the mouse hovers over it */
+        .testimonial-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 24px 48px rgba(176, 75, 90, 0.2); /* Matches your specific theme shadow */
+            border-color: var(--primary);
+            z-index: 10;
+        }
+
+        .testimonial-stars {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .testimonial-quote {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+            flex-grow: 1;
+            color: var(--on-surface);
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--secondary-container);
+        }
+
+        .author-name {
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--on-surface);
+        }
+
+        .author-title {
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--on-surface-variant);
+        }
+
+        /* Final CTA Section */
+        .final-cta {
+            padding: 6rem 2rem;
+            background: white;
+        }
+
+        .final-cta-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .cta-box {
+            background: var(--surface-container-high);
+            border-radius: 3rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            border: 1px solid rgba(176, 75, 90, 0.1);
+        }
+
+        @media (min-width: 768px) {
+            .cta-box {
+                padding: 5rem 3rem;
+            }
+        }
+
+        .cta-box h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+
+        @media (min-width: 768px) {
+            .cta-box h2 {
+                font-size: 3rem;
+            }
+        }
+
+        .cta-box h2 .italic {
+            font-style: italic;
+        }
+
+        .cta-box p {
+            color: var(--on-surface-variant);
+            font-size: 1.125rem;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @media (min-width: 640px) {
+            .cta-buttons {
+                flex-direction: row;
+            }
+        }
+
+        /* Footer */
+        footer {
+            background: var(--on-surface);
+            color: var(--surface-container-lowest);
+            padding: 5rem 2rem 2rem;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 3rem;
+        }
+
+        .footer-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-style: italic;
+            margin-bottom: 1rem;
+            color: rgba(252, 228, 230, 1);
+        }
+
+        .footer-section h4 {
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 2rem;
+            color: rgba(252, 228, 230, 1);
+        }
+
+        .footer-section p,
+        .footer-section li {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section address {
+            font-style: normal;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-hours {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+            padding-top: 2rem;
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: rgba(252, 228, 230, 1);
+        }
+
+        /* Responsive */
+        @media (max-width: 767px) {
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .services-title {
+                font-size: 1.75rem;
+            }
+
+            .packages-header h2 {
+                font-size: 2rem;
+            }
+
+            .testimonials-title {
+                font-size: 1.75rem;
+            }
+
+            .cta-box h2 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation -->
+<header>
+    <div class="nav-container">
+        <div class="nav-brand">SALON HARSHI </div>
+        <ul class="nav-links">
+            <li><a th:href="@{/}">Home</a></li>
+            <li><a th:href="@{/services}">Services</a></li>
+            <li><a th:href="@{/packages}">Packages</a></li>
+            <li><a th:href="@{/login}">Login</a></li>
+            <li><a th:href="@{/register}">Register</a></li>
+        </ul>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main>
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-container">
+            <div class="hero-content">
+                <span class="hero-label">Welcome To Salon Harshi</span>
+                <h1>Curating your <span class="italic">Natural</span> <span class="bold">Radiance.</span></h1>
+                <p class="hero-description">Experience a sanctuary where high-fashion editorial aesthetics meet personal care. We don't just provide services; we curate your identity.</p>
+                <a th:href="@{/login}" class="btn btn-primary">Book Appointment</a>
+            </div>
+            <div class="hero-images">
+                <div class="hero-main-image">
+                    <img src="/images/salon-face.png" alt="Professional stylist">
+                </div>
+                <div class="hero-secondary-image">
+                    <img src="/images/salon1.jpg" alt="Beauty shot">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="services-container">
+            <div class="services-header">
+                <div>
+                    <h2 class="services-title">Our <span class="italic">Services</span></h2>
+                    <div class="services-underline"></div>
+                </div>
+                <a th:href="@{/services}" class="services-view-all">Find More</a>
+            </div>
+            <div class="services-grid">
+                <!-- Service 1 -->
+                <div class="service-card">
+                    <div class="service-image">
+                        <img src="/images/haircut.jpg" alt="Precision Haircut">
+                    </div>
+                    <h3>Precision Haircut</h3>
+                    <p>Tailored architectural cuts designed to frame your unique facial structure and lifestyle.</p>
+                    <div class="service-footer">
+                        <span class="service-price">LKR 3,000+</span>
+                        <span class="service-arrow">→</span>
+                    </div>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="service-card">
+                    <div class="service-image">
+                        <img src="/images/Pearl-Cleanup-Services.png" alt="Signature Coloring">
+                    </div>
+                    <h3>Classic Clean Up</h3>
+                    <p>A swift yet thorough grooming experience designed to enhance your natural beauty.</p>
+                    <div class="service-footer">
+                        <span class="service-price">LKR 4,000+</span>
+                        <span class="service-arrow">→</span>
+                    </div>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="service-card">
+                    <div class="service-image">
+                        <img src="/images/nails.jpg" alt="Artisan Nails">
+                    </div>
+                    <h3>Artisan Nails</h3>
+                    <p>Sculptural nail art and restorative treatments that prioritize the health of your natural nails.</p>
+                    <div class="service-footer">
+                        <span class="service-price">LKR 3,500+</span>
+                        <span class="service-arrow">→</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Packages Section -->
+    <section class="packages" id="packages">
+        <div class="packages-container">
+            <div class="packages-header">
+                <span class="packages-label">Limited Collections</span>
+                <h2>Exclusive <span class="italic">Packages</span></h2>
+            </div>
+            <div class="packages-list">
+                <!-- Package 1 -->
+                <div class="package-card">
+                    <img src="/images/bridal-packages.jpeg" alt="The Bridal Glow" class="package-image">
+                    <div class="package-content">
+                        <span class="package-label">Seasonal Edit</span>
+                        <h3>The Bridal Glow</h3>
+                        <ul class="package-features">
+                            <li>Hair Trial & Final Styling</li>
+                            <li>Signature Hydra-Facial Treatment</li>
+                            <li>Luxury Manicure & Pedicure</li>
+                        </ul>
+                        <div class="package-footer">
+                            <span class="package-price">LKR 50,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Package 2 -->
+                <div class="package-card reverse">
+                    <img src="/images/packages.jpeg" alt="Weekend Pamper" class="package-image">
+                    <div class="package-content">
+                        <span class="package-label">Weekend Special</span>
+                        <h3>Weekend Pamper</h3>
+                        <ul class="package-features">
+                            <li>Luxury Blowout & Style</li>
+                            <li>Soothing Scalp Massage</li>
+                            <li>Express Gel Manicure</li>
+                        </ul>
+                        <div class="package-footer">
+                            <span class="package-price">LKR 28,000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="packages-view-all">
+                <a th:href="@{/packages}">View All Packages</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+        <div class="testimonials-container">
+            <h2 class="testimonials-title">What Our <span class="italic">Clients Say</span></h2>
+            <div class="testimonials-grid">
+
+                <div th:if="${#lists.isEmpty(feedbacks)}" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                    <p style="color: var(--on-surface-variant); font-style: italic;">No reviews yet. Be the first to share your experience!</p>
+                </div>
+
+                <div class="testimonial-card" th:each="fb : ${feedbacks}">
+
+
+                    <p class="testimonial-quote" th:text="${'&quot;' + fb.comment + '&quot;'}"></p>
+
+                    <div class="testimonial-author">
+                        <div class="author-avatar"></div>
+                        <div>
+                            <div class="author-name" th:text="${fb.name}"></div>
+                            <div class="author-title"
+                                 th:text="${fb.service != null and !fb.service.isEmpty()} ? ${fb.service} + ' Client' : 'Verified Client'">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 4rem;">
+                <a th:href="@{/reviews}" class="btn btn-primary">View All Reviews & Ratings</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="final-cta">
+        <div class="final-cta-container">
+            <div class="cta-box">
+                <h2>Ready for your <span class="italic">Transformation?</span></h2>
+                <p>Please login or register to book your slot at our exclusive atelier. First-time clients receive a complimentary hair analysis.</p>
+                <div class="cta-buttons">
+                    <a th:href="@{/login}" class="btn btn-primary">Login to Book</a>
+                    <a th:href="@{/register}" class="btn btn-outline">Register</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-container">
+        <div>
+            <h3 class="footer-brand">Saloon Harshi</h3>
+            <p>Defining the standard of high-end beauty curation since 2018.</p>
+        </div>
+        <div class="footer-section">
+            <h4>Visit Us</h4>
+            <address>
+                <p>124 Cinnamon Gardens,</p>
+                <p>Colombo, Sri Lanka</p>
+                <p>+94 71 234 5678 </p>
+            </address>
+        </div>
+        <div class="footer-section">
+            <h4>Hours</h4>
+            <div class="footer-hours">
+                <span>Mon - Fri</span>
+                <span>09:00 - 20:00</span>
+            </div>
+            <div class="footer-hours">
+                <span>Sat</span>
+                <span>10:00 - 18:00</span>
+            </div>
+            <div class="footer-hours">
+                <span>Sun</span>
+                <span>Closed</span>
+            </div>
+        </div>
+        <div class="footer-section">
+            <h4>Connect</h4>
+            <div class="footer-social">
+                <a href="#" class="social-link">🌐</a>
+                <a href="#" class="social-link">✉️</a>
+                <a href="#" class="social-link">📷</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2024 Saloon Harshi Boutique. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

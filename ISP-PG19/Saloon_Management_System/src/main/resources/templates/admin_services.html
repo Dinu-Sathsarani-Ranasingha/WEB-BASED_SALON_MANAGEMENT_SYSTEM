@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Services - Salon Harshi</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .main-content { margin-left: 260px; padding: 3rem 4rem; min-height: 100vh; background-color: var(--background); }
+        .page-header { margin-bottom: 3rem; border-bottom: 1px solid rgba(233, 30, 99, 0.1); padding-bottom: 1.5rem; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--on-surface); margin: 0; }
+        .page-title .italic { font-style: italic; color: var(--primary); }
+
+        .form-card { background: var(--surface); padding: 3rem; border-radius: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.05); margin-bottom: 3rem; max-width: 800px; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--on-surface-variant); margin-bottom: 0.5rem; }
+        .form-control { width: 100%; padding: 14px 20px; border: 1px solid var(--outline); border-radius: 12px; font-family: 'Inter', sans-serif; background: white; transition: all 0.3s; box-sizing: border-box; }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-container); }
+
+        .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
+        .category-card { background: var(--surface); border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.05); display: flex; flex-direction: column; transition: all 0.3s; cursor: pointer; }
+        .category-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(233,30,99,0.08); border-color: var(--primary); }
+        .category-header { display: flex; align-items: center; margin-bottom: 1.5rem; }
+        .category-image { width: 80px; height: 80px; object-fit: cover; border-radius: 1rem; margin-right: 1.5rem; background: var(--surface-container-low); }
+        .category-name { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--primary); margin: 0 0 0.25rem 0; }
+        .category-desc { font-size: 0.9rem; color: var(--on-surface-variant); line-height: 1.5; margin: 0; }
+        .category-actions { margin-top: auto; display: flex; gap: 0.5rem; justify-content: flex-end; border-top: 1px solid var(--surface-container); padding-top: 1rem; }
+    </style>
+</head>
+<body>
+
+<aside style="width:260px; background:var(--surface); height:100vh; position:fixed; top:0; left:0; padding:2rem; padding-bottom: 4rem; box-sizing:border-box; border-right: 1px solid rgba(233, 30, 99, 0.15); display: flex; flex-direction: column; overflow-y: auto; z-index: 100;">
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--on-surface); margin-bottom: 0.5rem; text-align: center;">Salon <span style="font-style: italic; color: var(--primary);">Harshi</span></h3>
+    <div style="text-align: center; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--primary); margin-bottom: 3rem; font-weight: 700;">Owner Portal</div>
+
+    <ul style="list-style:none; padding:0; flex-grow: 1;">
+        <li style="margin: 0.5rem 0;"><a href="/owner/dashboard" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;">Dashboard</a></li>
+        <li style="margin: 0.5rem 0;"><a href="/admin/manage-categories" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; background:var(--primary-container); color:var(--primary); transition: all 0.3s;">Manage Services</a></li>
+        <li style="margin: 0.5rem 0;"><a href="/admin/manage-packages" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;">Manage Packages</a></li>
+        <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">Team</li>
+        <li style="margin: 0.5rem 0;"><a href="/owner/create-employee" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;">Create Employee</a></li>
+        <li style="margin: 0.5rem 0;"><a href="/owner/user-activity" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;">User Activity</a></li>
+    </ul>
+
+    <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--surface-container-high); text-align: center;">
+        <a href="/logout" style="color: var(--on-surface-variant); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">Sign Out</a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">Service <span class="italic">Categories</span></h1>
+    </div>
+
+    <div class="form-card">
+        <h2 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-top: 0; margin-bottom: 1.5rem;">Add New Category</h2>
+        <div class="form-group">
+            <label class="form-label">Category Name (e.g., Hair, Nails)</label>
+            <input type="text" id="catName" class="form-control" placeholder="Enter category name">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Description</label>
+            <input type="text" id="catDesc" class="form-control" placeholder="Enter description">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Category Image</label>
+            <input type="file" id="catImage" class="form-control" style="padding: 10px 20px;">
+        </div>
+        <button class="btn btn-primary" onclick="saveCategory()" style="margin-top: 1rem;">Add Category</button>
+    </div>
+
+    <h2 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 1.5rem;">Current Collections</h2>
+    <div id="categoryList" class="category-grid">
+        <div id="categoriesContainer" style="display: contents;"></div>
+    </div>
+</main>
+
+<script>
+    let editingCategoryId = null;
+
+    function deleteCategory(id) {
+        if (confirm("Are you sure? Deleting this category will also delete all its services and styles!")) {
+            fetch(`/api/salon/categories/${id}`, { method: 'DELETE' }).then(() => loadCategories());
+        }
+    }
+
+    function loadCategories() {
+        fetch('/api/salon/categories')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('categoriesContainer');
+                container.innerHTML = '';
+
+                data.forEach(category => {
+                    const imageUrl = category.categoryImage ? `/images/categories/${category.categoryImage}` : '/images/salon-face.png';
+                    container.innerHTML += `
+                    <div class="category-card" onclick="window.location.href='/admin/manage-services?categoryId=${category.categoryId}&name=${category.categoryName}'">
+                        <div class="category-header">
+                            <img src="${imageUrl}" alt="${category.categoryName}" class="category-image">
+                            <div>
+                                <h3 class="category-name">${category.categoryName}</h3>
+                                <p class="category-desc">${category.categoryDescription}</p>
+                            </div>
+                        </div>
+                        <div class="category-actions">
+                            <button class="btn btn-outline" style="font-size: 0.6rem; padding: 8px 16px;"
+                                    onclick="event.stopPropagation(); editCategory(${category.categoryId}, '${category.categoryName}', '${category.categoryDescription}')">Edit</button>
+                            <button class="btn btn-primary" style="font-size: 0.6rem; padding: 8px 16px; background-color: #dc3545;"
+                                    onclick="event.stopPropagation(); deleteCategory(${category.categoryId})">Delete</button>
+                        </div>
+                    </div>
+                `;
+                });
+            });
+    }
+
+    function editCategory(id, name, desc) {
+        editingCategoryId = id;
+        document.getElementById('catName').value = name;
+        document.getElementById('catDesc').value = desc;
+        document.querySelector('button[onclick="saveCategory()"]').innerText = "Update Category";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function saveCategory() {
+        const name = document.getElementById('catName').value;
+        const desc = document.getElementById('catDesc').value;
+        const fileInput = document.getElementById('catImage').files[0];
+
+        // ADDED VALIDATION
+        if (name.trim() === '') {
+            alert("Please enter a Category Name.");
+            return;
+        }
+        if (desc.trim() === '') {
+            alert("Please enter a Category Description.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('description', desc);
+        if (fileInput) formData.append('image', fileInput);
+
+        let url = '/api/salon/categories';
+        let method = 'POST';
+
+        if (editingCategoryId !== null) {
+            url = `/api/salon/categories/${editingCategoryId}`;
+            method = 'PUT';
+        }
+
+        fetch(url, { method: method, body: formData }).then(response => {
+            if(response.ok) {
+                document.getElementById('catName').value = '';
+                document.getElementById('catDesc').value = '';
+                document.getElementById('catImage').value = '';
+                document.querySelector('button[onclick="saveCategory()"]').innerText = "Add Category";
+                editingCategoryId = null;
+                loadCategories();
+            } else {
+                alert("An error occurred while saving the category.");
+            }
+        });
+    }
+
+    window.onload = loadCategories;
+</script>
+</body>
+</html>

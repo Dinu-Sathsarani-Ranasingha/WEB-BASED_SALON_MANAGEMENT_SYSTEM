@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Feedback Form - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; min-height: 100vh; background-color: var(--background); padding-bottom: 4rem; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .dash-card { width: 100%; max-width: 600px; background: var(--surface); padding: 3rem 4rem; border-radius: 2.5rem; border: 1px solid rgba(233,30,99,0.1); box-shadow: 0 12px 32px rgba(0,0,0,0.05); }
+
+        .dashboard-header { text-align: center; margin-bottom: 3rem; }
+        .dashboard-header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .dashboard-header h1 .italic { font-style: italic; color: var(--primary); }
+
+        .edit-badge { display: inline-block; background: var(--primary-container); color: var(--primary); padding: 0.4rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        .error-msg { color: var(--primary); font-size: 0.75rem; margin-top: -15px; margin-bottom: 15px; display: block; font-weight: 600; }
+
+        .btn-row { display: flex; gap: 1rem; margin-top: 1rem; }
+        .btn-outline { background: white; color: var(--on-surface-variant); border: 1px solid var(--outline); padding: 1rem 2rem; border-radius: 9999px; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; transition: all 0.3s; }
+        .btn-outline:hover { background: var(--primary-container); color: var(--primary); border-color: var(--primary); }
+    </style>
+</head>
+<body>
+<!-- feedback submittion form -->
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+
+    <div class="dash-card">
+        <div class="dashboard-header">
+            <span style="display:block; margin-bottom:1rem; color:var(--primary); font-size: 0.75rem; letter-spacing: 0.2em; font-weight: 700; text-transform: uppercase;">Customer Voice</span>
+            <h1><em class="italic" th:text="${feedback.feedbackId != null} ? 'Edit Comment' : 'Leave a Comment'"></em></h1>
+        </div>
+
+        <span class="edit-badge" th:if="${feedback.feedbackId != null}">
+            ✏ Editing #<span th:text="${feedback.feedbackId}"></span>
+        </span>
+
+        <form th:action="${feedback.feedbackId != null} ? @{/feedback/edit/{id}(id=${feedback.feedbackId})} : @{/feedback/create}"
+              th:object="${feedback}" method="post" novalidate>
+
+            <input type="hidden" th:if="${feedback.feedbackId != null}" th:field="*{feedbackId}" />
+
+            <label class="form-label">Your Name *</label>
+            <input type="text" th:field="*{name}" class="form-control" placeholder="e.g. Amara Silva"/>
+            <span class="error-msg" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+
+            <label class="form-label">Your Comment *</label>
+            <textarea th:field="*{comment}" class="form-control" rows="5" placeholder="Share your experience..."></textarea>
+            <span class="error-msg" th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}"></span>
+
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary" th:text="${feedback.feedbackId != null} ? 'Update' : 'Submit'"></button>
+                <a class="btn-outline" th:href="@{/feedback}">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+</main>
+</body>
+</html>

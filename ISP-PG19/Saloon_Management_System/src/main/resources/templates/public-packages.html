@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Packages - Salon Harshi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* Public Navigation Header Styles */
+        header {
+            position: fixed; top: 0; width: 100%; z-index: 50;
+            background: rgba(255, 250, 250, 0.9); backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(233, 30, 99, 0.15); padding: 1rem 2rem;
+        }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; color: var(--primary); }
+        .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; margin: 0; padding: 0; }
+        .nav-links a { color: var(--on-surface-variant); text-decoration: none; font-weight: 700; font-size: 0.625rem; letter-spacing: 0.2em; text-transform: uppercase; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* Main Layout */
+        main { padding-top: 100px; max-width: 1200px; margin: 0 auto; padding-bottom: 4rem; min-height: 80vh; }
+        .public-header { text-align: center; margin-bottom: 4rem; padding-top: 2rem; }
+        .page-title { font-family: 'Playfair Display', serif; font-size: 3rem; margin-top: 0.5rem; }
+        .page-title .italic { font-style: italic; color: var(--primary); }
+        .form-label { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--primary); font-weight: 700; }
+
+        /* Package Grid and Cards */
+        .package-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2.5rem; padding: 0 2rem; }
+        .pkg-card { background: var(--surface); padding: 3rem; border-radius: 2.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.1); display: flex; flex-direction: column; transition: all 0.4s; }
+        .pkg-card:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: 0 16px 32px rgba(233,30,99,0.08); }
+        .pkg-card h3 { font-family: 'Playfair Display', serif; font-size: 1.75rem; margin-bottom: 0.5rem; }
+        .pkg-price { color: var(--primary); font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; }
+        .pkg-desc { color: var(--on-surface-variant); font-size: 0.9rem; margin-bottom: 2rem; line-height: 1.6; }
+
+        /* Nested Service List inside Package */
+        .inclusion-list { background: var(--surface-container-low); border-radius: 1.5rem; padding: 1.5rem; margin-bottom: 2rem; flex-grow: 1; }
+        .inclusion-item { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.8rem; color: var(--on-surface); }
+        .inclusion-item:last-child { margin-bottom: 0; }
+
+        .btn-outline { display: block; text-align: center; background: white; color: var(--primary); border: 2px solid var(--primary); padding: 1rem; border-radius: 9999px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none; transition: 0.3s; margin-top: auto; }
+        .btn-outline:hover { background: rgba(233, 30, 99, 0.05); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="nav-container">
+        <div class="nav-brand">SALON HARSHI</div>
+        <ul class="nav-links">
+            <li><a th:href="@{/}">Home</a></li>
+            <li><a th:href="@{/services}">Services</a></li>
+            <li><a th:href="@{/packages}" style="color: var(--primary);">Packages</a></li>
+            <li><a th:href="@{/login}">Login</a></li>
+            <li><a th:href="@{/register}">Register</a></li>
+        </ul>
+    </div>
+</header>
+
+<main>
+    <div class="public-header">
+        <span class="form-label">Exclusive Edits</span>
+        <h1 class="page-title">Special <span class="italic">Packages</span></h1>
+        <p style="color: var(--on-surface-variant); max-width: 500px; margin: 1rem auto;">Discover our curated collections. Sign in to reserve your appointment.</p>
+    </div>
+
+    <div class="package-grid" id="packagesGrid">
+        <p style="text-align: center; grid-column: 1/-1;">Curating our limited collections...</p>
+    </div>
+</main>
+
+<script>
+    async function loadPackages() {
+        try {
+            const res = await fetch('/api/packages/categories?includeItems=true');
+            if(res.ok) {
+                const packages = await res.json();
+                renderPackages(packages);
+            }
+        } catch (e) {
+            document.getElementById('packagesGrid').innerHTML = '<p style="color:var(--primary); text-align:center; grid-column: 1/-1;">Unable to load collections at this time.</p>';
+        }
+    }
+
+    function renderPackages(packages) {
+        const grid = document.getElementById('packagesGrid');
+        if (packages.length === 0) {
+            grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">No collections available today.</p>';
+            return;
+        }
+        grid.innerHTML = packages.map(pkg => `
+            <div class="pkg-card">
+                <h3>${pkg.name}</h3>
+                <div class="pkg-price">LKR ${pkg.totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                <p class="pkg-desc">${pkg.description || 'A complete curation tailored for your radiance.'}</p>
+
+                <div class="inclusion-list">
+                    <div style="font-weight:700; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--primary); margin-bottom:1rem;">Inclusions</div>
+                    ${(pkg.items || []).map(item => `
+                        <div class="inclusion-item">
+                            <span>• ${item.name}</span>
+                            <span style="font-weight:700; color:var(--primary);">LKR ${item.price.toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <a href="/login" class="btn-outline">Login to Book</a>
+            </div>
+        `).join('');
+    }
+
+    // Initialize the page
+    loadPackages();
+</script>
+</body>
+</html>

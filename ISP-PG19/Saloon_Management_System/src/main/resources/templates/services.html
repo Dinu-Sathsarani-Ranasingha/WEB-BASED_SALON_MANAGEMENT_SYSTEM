@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Services - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 3rem 4rem; background-color: var(--background); min-height: 100vh; }
+        .page-header { margin-bottom: 3rem; border-bottom: 1px solid rgba(233, 30, 99, 0.1); padding-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: flex-end;}
+        .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--on-surface); margin: 0; }
+
+        .admin-box { background: var(--surface); padding: 2.5rem; border-radius: 2rem; border: 1px solid rgba(233,30,99,0.05); margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .style-item { display: flex; justify-content: space-between; align-items: center; background: var(--surface-container-low); padding: 1.2rem; border-radius: 1rem; margin-bottom: 0.8rem; }
+        .form-control { width: 100%; padding: 12px 20px; border: 1px solid var(--outline); border-radius: 12px; font-family: 'Inter', sans-serif; background: white; transition: all 0.3s; box-sizing: border-box;}
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-container); }
+    </style>
+</head>
+<body>
+
+<aside style="width:260px; background:var(--surface); height:100vh; position:fixed; top:0; left:0; padding:2rem; padding-bottom: 4rem; box-sizing:border-box; border-right: 1px solid rgba(233, 30, 99, 0.15); display: flex; flex-direction: column; overflow-y: auto; z-index: 100;">
+    <h3 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--on-surface); margin-bottom: 0.5rem; text-align: center;">Salon <span style="font-style: italic; color: var(--primary);">Harshi</span></h3>
+    <div style="text-align: center; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--primary); margin-bottom: 3rem; font-weight: 700;">Owner Portal</div>
+
+    <ul style="list-style:none; padding:0; flex-grow: 1;">
+        <li style="margin: 0.5rem 0;"><a th:href="@{/owner/dashboard}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;">Dashboard</a></li>
+        <li style="margin: 0.5rem 0;"><a th:href="@{/admin/manage-categories}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; background:var(--primary-container); color:var(--primary); transition: all 0.3s;">Manage Services</a></li>
+        <li style="margin: 0.5rem 0;"><a th:href="@{/admin/manage-packages}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;">Manage Packages</a></li>
+        <li style="margin: 2rem 0 0.5rem 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--outline); font-weight: 700; padding-left: 20px;">Team</li>
+        <li style="margin: 0.5rem 0;"><a th:href="@{/owner/create-employee}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;">Create Employee</a></li>
+        <li style="margin: 0.5rem 0;"><a th:href="@{/owner/user-activity}" style="text-decoration:none; font-weight:600; font-size:0.85rem; display:block; padding:12px 20px; border-radius:9999px; color:var(--on-surface-variant); transition: all 0.3s;">User Activity</a></li>
+    </ul>
+
+    <div style="margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--surface-container-high); text-align: center;">
+        <a th:href="@{/logout}" style="color: var(--on-surface-variant); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; text-decoration: none;">Sign Out</a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <div class="page-header">
+        <h1 id="pageTitle" class="page-title">Collection Details</h1>
+        <button class="btn btn-outline" onclick="window.location.href='/admin/manage-categories'" style="font-size:0.6rem;">← Back to Collections</button>
+    </div>
+
+    <div class="admin-box" style="padding: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1.5rem; font-family: 'Playfair Display', serif; font-size: 1.25rem;">Create New Sub-Service</h3>
+        <div style="display:flex; gap:1rem; align-items: center;">
+            <input type="text" id="newServiceName" class="form-control" placeholder="e.g., Luxury Blowout" style="margin:0; flex-grow: 1;">
+            <button class="btn btn-primary" onclick="addService()">Add Service</button>
+        </div>
+    </div>
+
+    <div id="servicesContainer"></div>
+</main>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryId = urlParams.get('categoryId');
+    document.getElementById('pageTitle').innerText = (urlParams.get('name') || 'Collection') + ' Architecture';
+
+    // State object to keep track of which style is being edited within which service
+    let editingStyleState = {};
+
+    function loadServices() {
+        fetch(`/api/salon/categories/${categoryId}/services`)
+            .then(res => res.json())
+            .then(services => {
+                const container = document.getElementById('servicesContainer');
+                container.innerHTML = services.map(s => `
+                    <div class="admin-box">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom: 1px solid var(--surface-container); padding-bottom: 1rem;">
+                            <h2 style="font-family:'Playfair Display',serif; color:var(--primary); margin:0; font-size: 1.5rem;">${s.serviceName}</h2>
+                            <button class="btn btn-outline" style="font-size:0.6rem; color:#dc3545; border-color:#dc3545;" onclick="deleteService(${s.salonServiceId})">Delete Service</button>
+                        </div>
+                        <div id="styles_${s.salonServiceId}">
+                            ${s.serviceStyles.map(st => `
+                                <div class="style-item">
+                                    <span style="font-weight:700; color: var(--on-surface);">${st.styleName} <span style="color:var(--primary); margin-left:10px; font-weight: 800;">LKR ${st.price}</span></span>
+                                    <div>
+                                        <button class="btn btn-outline" style="font-size:0.5rem; padding: 4px 8px; margin-right: 5px;"
+                                            onclick="editStyle(${s.salonServiceId}, ${st.styleId}, '${st.styleName}', ${st.price})">Edit</button>
+                                        <button class="btn btn-outline" style="font-size:0.5rem; border:none; padding: 4px 8px; background: white;"
+                                            onclick="deleteStyle(${st.styleId})">✕ Remove</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="margin-top:1.5rem; display:flex; gap:0.5rem;">
+                            <input type="text" id="name_${s.salonServiceId}" class="form-control" placeholder="Specific Style Name" style="margin:0; font-size:0.8rem; flex-grow: 1;">
+                            <input type="number" id="price_${s.salonServiceId}" class="form-control" placeholder="Price" style="margin:0; width:120px; font-size:0.8rem;" min="1">
+                            <button id="btn_${s.salonServiceId}" class="btn btn-primary" style="font-size:0.6rem; padding:0 1.5rem;" onclick="saveStyle(${s.salonServiceId})">+ Add Style</button>
+                        </div>
+                    </div>
+                `).join('');
+            });
+    }
+
+    async function addService() {
+        const name = document.getElementById('newServiceName').value;
+        if (name.trim() === '') {
+            alert("Service name cannot be empty.");
+            return;
+        }
+
+        await fetch('/api/salon/services', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ serviceName: name, serviceCategory: { categoryId: categoryId } })
+        });
+        document.getElementById('newServiceName').value = '';
+        loadServices();
+    }
+
+    // Function to populate inputs for editing
+    function editStyle(serviceId, styleId, currentName, currentPrice) {
+        document.getElementById('name_' + serviceId).value = currentName;
+        document.getElementById('price_' + serviceId).value = currentPrice;
+
+        const actionBtn = document.getElementById('btn_' + serviceId);
+        actionBtn.innerText = "Update Style";
+
+        editingStyleState[serviceId] = styleId;
+    }
+
+    // Combined add and update function with validation
+    async function saveStyle(serviceId) {
+        const name = document.getElementById('name_' + serviceId).value;
+        const price = document.getElementById('price_' + serviceId).value;
+
+        // Front-end Validations
+        if (name.trim() === '') {
+            alert("Style name cannot be empty.");
+            return;
+        }
+        if (price === '' || isNaN(price) || Number(price) <= 0) {
+            alert("Price must be a valid number greater than zero.");
+            return;
+        }
+
+        const styleId = editingStyleState[serviceId];
+        const url = styleId ? `/api/salon/styles/${styleId}` : '/api/salon/styles';
+        const method = styleId ? 'PUT' : 'POST';
+
+        const payload = {
+            styleName: name,
+            price: Number(price),
+            availability: true,
+            salonService: { salonServiceId: serviceId }
+        };
+
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            editingStyleState[serviceId] = null; // Reset state
+            loadServices();
+        } else {
+            // Handle @Valid errors caught by the global exception handler
+            const errorData = await response.json();
+            let errorMsg = "Could not save style:\n";
+            for (const field in errorData) {
+                errorMsg += `- ${errorData[field]}\n`;
+            }
+            alert(errorMsg);
+        }
+    }
+
+    async function deleteService(id) {
+        if(confirm("Delete service?")) {
+            await fetch(`/api/salon/services/${id}`, { method: 'DELETE' });
+            loadServices();
+        }
+    }
+
+    async function deleteStyle(id) {
+        if(confirm("Delete style?")) {
+            await fetch(`/api/salon/styles/${id}`, { method: 'DELETE' });
+            loadServices();
+        }
+    }
+
+    window.onload = loadServices;
+</script>
+</body>
+</html>

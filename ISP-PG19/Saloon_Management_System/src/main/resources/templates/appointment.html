@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Appointment | Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 4rem; background-color: var(--background); min-height: 100vh; }
+        .header-section { margin-bottom: 3rem; border-bottom: 1px solid rgba(176,75,90,0.1); padding-bottom: 1.5rem; }
+        .page-title { font-size: 2.5rem; }
+        .page-title .italic { font-style: italic; color: var(--primary); }
+
+        .booking-container { display: flex; gap: 3rem; align-items: flex-start; }
+        .booking-section { flex: 2; background: var(--surface); padding: 3rem; border-radius: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.1); }
+        .summary-section { flex: 1; background: var(--surface); padding: 2.5rem; border-radius: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.1); position: sticky; top: 2rem; }
+
+        .section-title { font-family: 'Playfair Display', serif; font-size: 1.75rem; margin-bottom: 2rem; color: var(--on-surface); }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+
+        /* Time Slots Styling */
+        .time-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; margin-top: 1rem; margin-bottom: 2rem; }
+        .time-slot { padding: 0.8rem; text-align: center; border: 1px solid var(--outline); border-radius: 1rem; cursor: pointer; color: var(--on-surface-variant); font-weight: 600; font-size: 0.85rem; transition: 0.3s; background: white; }
+        .time-slot:hover:not(.disabled) { border-color: var(--primary); color: var(--primary); background: var(--primary-container); }
+        .time-slot.selected { background: var(--primary); border-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(233,30,99,0.2); }
+        .time-slot.disabled { background: var(--surface-container-low); border-color: #eee; color: #bbb; cursor: not-allowed; text-decoration: line-through; }
+
+        /* Cart Summary Items */
+        .summary-item { display: flex; justify-content: space-between; padding: 1rem 0; border-bottom: 1px dashed rgba(0,0,0,0.05); font-size: 0.9rem; }
+        .summary-total { display: flex; justify-content: space-between; font-weight: 700; font-size: 1.25rem; color: var(--primary); margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid var(--primary-container); }
+
+        @media (max-width: 1024px) { .booking-container { flex-direction: column; } .summary-section { width: 100%; box-sizing: border-box; } }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="header-section">
+        <span class="form-label" style="color:var(--primary);">Final Step</span>
+        <h1 class="page-title" id="pageTitle">Confirm <span class="italic">Booking</span></h1>
+    </div>
+
+    <div class="booking-container">
+        <div class="booking-section">
+            <h2 class="section-title" id="formTitle">Your Details</h2>
+            <form id="bookingForm">
+                <div class="form-row" id="customerDetailsRow">
+                    <div>
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="customerName" class="form-control" placeholder="Jane Doe" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" id="customerPhone" class="form-control" placeholder="07XXXXXXXX"
+                               pattern="\d{10}" maxlength="10" minlength="10" title="Must be exactly 10 digits" required>
+                    </div>
+                </div>
+
+                <label class="form-label">Select Stylist</label>
+                <select id="staffMember" class="form-control" required>
+                    <option value="" disabled selected>Choose your stylist</option>
+                </select>
+
+                <label class="form-label">Appointment Date</label>
+                <input type="date" id="appointmentDate" class="form-control" required>
+
+                <label class="form-label" style="margin-top: 1rem;">Available Times</label>
+                <div id="timeSlotsContainer" class="time-slots">
+                    <p style="color: var(--on-surface-variant); font-size: 0.85rem; grid-column: 1/-1;">Please select a date to view available times.</p>
+                </div>
+
+                <input type="hidden" id="selectedTime" required>
+                <button type="submit" class="btn btn-primary" id="submitBtn" style="width: 100%;">Confirm Appointment</button>
+            </form>
+        </div>
+
+        <div class="summary-section" id="cartSummarySection">
+            <h2 class="section-title">Selection</h2>
+            <div id="cartItems"></div>
+            <div class="summary-total">
+                <span>Total</span>
+                <span id="cartTotal">LKR 0.00</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const rescheduleId = urlParams.get('rescheduleId');
+    let isRescheduling = !!rescheduleId;
+
+    async function loadStaff() {
+        try {
+            const res = await fetch('/api/employees/staff-list');
+            const staff = await res.json();
+            const select = document.getElementById('staffMember');
+            staff.forEach(s => {
+                const option = document.createElement('option');
+                option.value = s.id;
+                option.textContent = `${s.firstName} ${s.lastName}`;
+                select.appendChild(option);
+            });
+        } catch (e) {
+            console.error("Error loading stylists:", e);
+        }
+    }
+    loadStaff();
+
+    if (isRescheduling) {
+        document.getElementById('cartSummarySection').style.display = 'none';
+        document.getElementById('customerDetailsRow').style.display = 'none';
+        document.getElementById('customerName').removeAttribute('required');
+        document.getElementById('customerPhone').removeAttribute('required');
+        document.getElementById('staffMember').removeAttribute('required');
+        document.getElementById('pageTitle').innerHTML = 'Reschedule <span class="italic">Appointment</span>';
+        document.getElementById('formTitle').innerText = 'Select New Time';
+        document.getElementById('submitBtn').innerText = 'Confirm Reschedule';
+    }
+
+    const dateInput = document.getElementById('appointmentDate');
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.min = today;
+
+    let cart = JSON.parse(localStorage.getItem('harshiCart')) || [];
+    let totalPrice = 0;
+
+    if (!isRescheduling) {
+        const itemsContainer = document.getElementById('cartItems');
+        cart.forEach(item => {
+            totalPrice += item.price;
+            itemsContainer.innerHTML += `
+                <div class="summary-item">
+                    <span style="font-weight:600; color:var(--on-surface);">${item.name}</span>
+                    <span style="color:var(--on-surface-variant);">LKR ${item.price.toFixed(2)}</span>
+                </div>
+            `;
+        });
+        document.getElementById('cartTotal').innerText = `LKR ${totalPrice.toFixed(2)}`;
+    }
+
+    const slots = ["09:00:00", "10:00:00", "11:00:00", "12:00:00", "13:00:00", "14:00:00", "15:00:00", "16:00:00", "17:00:00"];
+
+    dateInput.addEventListener('change', async () => {
+        const container = document.getElementById('timeSlotsContainer');
+        container.innerHTML = '<p style="font-size:0.85rem;">Checking availability...</p>';
+
+        try {
+            const res = await fetch(`/api/appointments/booked-times?date=${dateInput.value}`);
+            const bookedTimes = await res.json();
+
+            container.innerHTML = '';
+            slots.forEach(slot => {
+                const isBooked = bookedTimes.includes(slot);
+                const div = document.createElement('div');
+                div.className = `time-slot ${isBooked ? 'disabled' : ''}`;
+                div.innerText = slot.substring(0, 5);
+
+                if (!isBooked) {
+                    div.onclick = () => {
+                        document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                        div.classList.add('selected');
+                        document.getElementById('selectedTime').value = slot;
+                    };
+                }
+                container.appendChild(div);
+            });
+        } catch (e) {
+            container.innerHTML = '<p style="color:red; font-size:0.85rem;">Error loading times.</p>';
+        }
+    });
+
+    document.getElementById('bookingForm').onsubmit = async (e) => {
+        e.preventDefault();
+
+        const time = document.getElementById('selectedTime').value;
+        if (!time) { alert("Please select a time slot!"); return; }
+
+        // FRONT-END JAVASCRIPT VALIDATIONS
+        if (!isRescheduling) {
+            const phone = document.getElementById('customerPhone').value;
+            const staffId = document.getElementById('staffMember').value;
+            const phoneRegex = /^\d{10}$/;
+
+            if (!phoneRegex.test(phone)) {
+                alert("Please enter exactly 10 digits for your phone number.");
+                return;
+            }
+            if (!staffId) {
+                alert("Please select a stylist.");
+                return;
+            }
+            if (cart.length === 0) {
+                alert("Your cart is empty. Please add a service before booking.");
+                return;
+            }
+        }
+
+        if (isRescheduling) {
+            const payload = { newDate: dateInput.value, newTime: time };
+            const res = await fetch(`/api/appointments/${rescheduleId}/reschedule`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert("Successfully rescheduled!");
+                window.location.href = `/appointments/my-history`;
+            } else { alert("Error: " + await res.text()); }
+
+        } else {
+            const payload = {
+                customerName: document.getElementById('customerName').value,
+                customerPhone: document.getElementById('customerPhone').value,
+                appointmentDate: dateInput.value,
+                appointmentTime: time,
+                totalPrice: totalPrice,
+                bookedItemsJson: JSON.stringify(cart),
+                staffId: document.getElementById('staffMember').value
+            };
+
+            const res = await fetch('/api/appointments/book', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                const appt = await res.json();
+                localStorage.removeItem('harshiCart');
+                window.location.href = `/customer/payment?id=${appt.id}&amount=${totalPrice}`;
+            } else {
+                // Catch @Valid errors if thrown from server
+                try {
+                    const errors = await res.json();
+                    let errMsg = "Booking failed:\n";
+                    for(let field in errors) { errMsg += `- ${errors[field]}\n`; }
+                    alert(errMsg);
+                } catch {
+                    alert("Error: " + res.statusText);
+                }
+            }
+        }
+    };
+</script>
+</body>
+</html>

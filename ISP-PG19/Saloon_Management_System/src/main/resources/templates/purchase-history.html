@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Purchases | Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 4rem; background-color: var(--background); min-height: 100vh; }
+        .header-section { margin-bottom: 3rem; border-bottom: 1px solid rgba(176,75,90,0.1); padding-bottom: 1.5rem; }
+        .page-title { font-size: 2.5rem; }
+        .page-title .italic { font-style: italic; color: var(--primary); }
+
+        .history-card { background: var(--surface); padding: 3rem; border-radius: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.1); }
+
+        .styled-table { width: 100%; border-collapse: collapse; }
+        .styled-table th { text-align: left; padding: 1rem; border-bottom: 2px solid var(--primary-container); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--on-surface-variant); }
+        .styled-table td { padding: 1.5rem 1rem; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 0.95rem; color: var(--on-surface); vertical-align: top; }
+
+        .status-badge { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .status-paid      { background: #e8f5e9; color: #2e7d32; }
+        .status-cancelled { background: #ffebee; color: #c62828; }
+        .status-pending   { background: #e3f2fd; color: #1565c0; }
+
+        .item-list { list-style: none; padding: 0; margin: 0; }
+        .item-list li { padding: 0.25rem 0; display: flex; align-items: baseline; gap: 0.5rem; font-size: 0.9rem; }
+        .item-list li::before { content: '✦'; color: var(--primary); font-size: 0.45rem; flex-shrink: 0; position: relative; top: -2px; }
+        .item-name  { font-weight: 600; color: var(--on-surface); }
+        .item-price { color: var(--primary); font-family: 'Playfair Display', serif; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="header-section">
+        <span class="form-label" style="color:var(--primary);">History</span>
+        <h1 class="page-title">My <span class="italic">Purchases</span></h1>
+        <p style="color:var(--on-surface-variant); margin-top:0.5rem; font-size:0.95rem;">A full breakdown of every service and package you have booked.</p>
+    </div>
+
+    <div class="history-card">
+        <table class="styled-table">
+            <thead>
+            <tr>
+                <th>Date &amp; Time</th>
+                <th>Services / Packages</th>
+                <th>Total</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody id="purchaseTableBody">
+            <tr>
+                <td colspan="4" style="text-align:center; padding: 3rem; color: var(--on-surface-variant); font-style: italic;">
+                    Loading your purchases...
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+    window.onload = fetchPurchases;
+
+    async function fetchPurchases() {
+        const tbody = document.getElementById('purchaseTableBody');
+        try {
+            const res = await fetch('/api/appointments/history');
+            if (!res.ok) throw new Error("Server error");
+            const data = await res.json();
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 3rem; color: var(--on-surface-variant);">You have no purchases yet.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(appt => {
+                const statusClass = appt.status.toUpperCase() === 'PAID'     ? 'status-paid' :
+                    appt.status.toUpperCase() === 'CANCELLED' ? 'status-cancelled' : 'status-pending';
+
+                // Parse bookedItemsJson to show individual services/packages
+                let itemsHtml = '<span style="color:var(--on-surface-variant); font-size:0.85rem; font-style:italic;">No item details available</span>';
+                try {
+                    const items = JSON.parse(appt.bookedItemsJson || '[]');
+                    if (items.length > 0) {
+                        itemsHtml = '<ul class="item-list">' +
+                            items.map(item => {
+                                const name  = item.name || item.styleName || item.itemName || item.serviceName || 'Item';
+                                const price = item.price != null
+                                    ? `<span class="item-price">LKR ${parseFloat(item.price).toFixed(2)}</span>`
+                                    : '';
+                                return `<li><span class="item-name">${name}</span>${price}</li>`;
+                            }).join('') +
+                            '</ul>';
+                    }
+                } catch(e) { /* keep default message */ }
+
+                return `
+                    <tr>
+                        <td>
+                            <span style="font-weight:600;">${appt.appointmentDate}</span><br>
+                            <span style="font-size:0.8rem; color:var(--on-surface-variant);">${appt.appointmentTime}</span>
+                        </td>
+                        <td>${itemsHtml}</td>
+                        <td style="font-family:'Playfair Display',serif; font-weight:700; color:var(--primary); white-space:nowrap;">
+                            LKR ${appt.totalPrice.toFixed(2)}
+                        </td>
+                        <td><span class="status-badge ${statusClass}">${appt.status}</span></td>
+                    </tr>`;
+            }).join('');
+
+        } catch (error) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#e91e63;">Error connecting to the server.</td></tr>';
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600;700;800&display=swap');
+
+:root {
+    --primary: #e91e63;              /* main pink */
+    --primary-container: #fde4ec;    /* light blush */
+    --on-primary: #ffffff;
+    --on-primary-container: #4a0b1f;
+
+    --secondary: #f48fb1;            /* soft pink */
+    --secondary-container: #ffe4f1;
+
+    --background: #fff7fa;           /* very light pink background */
+    --surface: #ffffff;              /* pure white for cards */
+    --surface-variant: #f8d7e6;
+
+    --on-surface: #2a121a;
+    --on-surface-variant: #6b4a57;
+
+    --outline: #d48aa3;
+
+    --surface-container: #ffeaf2;
+    --surface-container-low: #fff0f6;
+    --surface-container-high: #ffe0ec;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background);
+    color: var(--on-surface);
+    line-height: 1.6;
+}
+
+h1, h2, h3, .serif {
+    font-family: 'Playfair Display', serif;
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 8px 16px rgba(233, 30, 99, 0.18);
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: var(--on-primary);
+}
+
+.btn-primary:hover {
+    background: #d81b60;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(233, 30, 99, 0.25);
+}
+
+/* Form Styles for Login/Register */
+.form-control {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0 20px;
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    background: white;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-container);
+}
+
+.form-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+}
+
+/* Add this at the bottom of style.css */
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.welcome-description {
+    margin-top: 1.5rem;
+    color: var(--on-surface-variant);
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 450px; /* Keeps the text in a neat, readable block */
+}
+/* Failsafe to prevent stray Bootstrap modal backdrops from freezing the UI
+.modal-backdrop {
+    display: none !important;
+    z-index: -1 !important;
+}
+body.modal-open {
+    overflow: auto !important;
+    padding-right: 0 !important;
+} */

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Salon Services - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 4rem; background-color: var(--background); min-height: 100vh; }
+        .header-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; border-bottom: 1px solid rgba(176,75,90,0.1); padding-bottom: 1.5rem; }
+        .page-title { font-size: 2.5rem; }
+        .page-title .italic { font-style: italic; color: var(--primary); }
+
+        /* Floating Cart Icon */
+        .cart-trigger { background: var(--surface); border: 1px solid var(--primary); color: var(--primary); padding: 0.8rem 1.5rem; border-radius: 9999px; font-weight: 700; cursor: pointer; transition: 0.3s; position: relative; }
+        .cart-trigger:hover { background: var(--primary); color: white; }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--primary); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
+
+        /* Categories and Service Cards */
+        .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
+        .cat-card { background: var(--surface); border-radius: 2rem; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.1); cursor: pointer; transition: 0.4s; }
+        .cat-card:hover { transform: translateY(-8px); border-color: var(--primary); box-shadow: 0 16px 32px rgba(233,30,99,0.08); }
+        .cat-img { width: 100%; height: 200px; object-fit: cover; }
+        .cat-info { padding: 1.5rem; text-align: center; }
+        .cat-info h3 { font-size: 1.25rem; color: var(--on-surface); margin-bottom: 0.5rem; }
+
+        /* Drawer Styling */
+        .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.2); backdrop-filter: blur(4px); z-index: 998; display: none; }
+        .cart-drawer {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 350px;
+            height: 100vh;
+            background: var(--surface);
+            z-index: 999;
+            transition: 0.4s;
+            padding: 0; /* Changed from 2rem to 0 to stop pushing the bottom button out */
+            box-sizing: border-box; /* Ensures height includes borders */
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-drawer.open { right: 0; }
+        /* Adds the spacing back inside the drawer */
+        .cart-drawer h2 { padding: 2rem 2rem 1rem 2rem; margin: 0; }
+        #cartItemsContainer { padding: 0 2rem; }
+        .cart-footer-area {
+            padding: 2rem;
+            border-top: 1px solid rgba(176,75,90,0.1);
+            background: var(--surface);
+            margin-top: auto;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="header-section">
+        <div>
+            <span class="form-label" style="color:var(--primary);">The Collection</span>
+            <h1 class="page-title">Our <span class="italic">Services</span></h1>
+        </div>
+        <button class="cart-trigger" onclick="toggleCart()">
+            🛒 Your Selection <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+    </div>
+
+    <div id="categoriesView">
+        <div class="category-grid" id="categoryGrid">
+            <p>Gathering the collection...</p>
+        </div>
+    </div>
+
+    <div id="servicesView" class="hidden">
+        <button class="btn btn-outline" onclick="showCategoriesView()" style="margin-bottom: 2rem;">← Back to Collection</button>
+        <h2 id="selectedCategoryTitle" style="font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 2rem;"></h2>
+        <div id="servicesContainer"></div>
+    </div>
+</main>
+
+<div class="drawer-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+    <h2 style="font-family: 'Playfair Display', serif;">Selection</h2>
+
+    <div id="cartItemsContainer" style="flex-grow:1; overflow-y:auto;"></div>
+
+    <div class="cart-footer-area">
+        <div style="display:flex; justify-content:space-between; font-weight:700; margin-bottom:1.5rem;">
+            <span>Total</span>
+            <span id="cartTotal">LKR 0.00</span>
+        </div>
+        <button class="btn btn-primary" style="width:100%;" onclick="checkout()">Checkout</button>
+    </div>
+</div>
+
+<script>
+    // --- Keeping your existing script logic but updated to match the UI ---
+    let cart = JSON.parse(localStorage.getItem('harshiCart')) || [];
+
+    function toggleCart() {
+        const drawer = document.getElementById('cartDrawer');
+        const overlay = document.getElementById('cartOverlay');
+        drawer.classList.toggle('open');
+        overlay.style.display = drawer.classList.contains('open') ? 'block' : 'none';
+    }
+
+    function showCategoriesView() {
+        document.getElementById('servicesView').classList.add('hidden');
+        document.getElementById('categoriesView').classList.remove('hidden');
+    }
+
+    async function loadCategories() {
+        try {
+            const res = await fetch('/api/salon/categories');
+            const categories = await res.json();
+            const grid = document.getElementById('categoryGrid');
+            grid.innerHTML = categories.map(cat => `
+                <div class="cat-card" onclick="loadCategoryServices(${cat.categoryId}, '${cat.categoryName}')">
+                <img src="/images/categories/${cat.categoryImage || 'default.png'}" class="cat-img" onerror="this.src='/images/salon-face.png'">                    <div class="cat-info">
+                        <h3>${cat.categoryName}</h3>
+                        <p style="font-size:0.8rem; color:var(--on-surface-variant);">${cat.categoryDescription || ''}</p>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    async function loadCategoryServices(id, name) {
+        document.getElementById('categoriesView').classList.add('hidden');
+        document.getElementById('servicesView').classList.remove('hidden');
+        document.getElementById('selectedCategoryTitle').innerText = name;
+        const container = document.getElementById('servicesContainer');
+
+        const res = await fetch(`/api/salon/categories/${id}/services`);
+        const services = await res.json();
+
+        container.innerHTML = services.map(s => `
+            <div style="background:white; padding:2rem; border-radius:2rem; margin-bottom:1.5rem; border:1px solid rgba(233,30,99,0.05);">
+                <h3 style="font-family:'Playfair Display',serif; color:var(--primary); margin-bottom:1.5rem;">${s.serviceName}</h3>
+                <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:1rem;">
+                    ${s.serviceStyles.map(st => `
+                        <div style="background:var(--surface-container-low); padding:1rem; border-radius:1rem; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-weight:700; font-size:0.9rem;">${st.styleName}</div>
+                                <div style="color:var(--primary); font-size:0.8rem; font-weight:700;">LKR ${st.price}</div>
+                            </div>
+                            <button class="btn btn-primary" style="padding:0.5rem 1rem; font-size:0.6rem;" onclick="addToCart('SERVICE', ${st.styleId}, '${st.styleName}', ${st.price})">+ Add</button>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function addToCart(type, id, name, price) {
+        cart.push({ type, id, name, price });
+        saveAndRenderCart();
+    }
+
+    function saveAndRenderCart() {
+        localStorage.setItem('harshiCart', JSON.stringify(cart));
+        document.getElementById('cartBadge').innerText = cart.length;
+        const container = document.getElementById('cartItemsContainer');
+        let total = 0;
+
+        if (cart.length === 0) {
+            container.innerHTML = `<p style="text-align:center; color:var(--outline); margin-top:2rem;">Your selection is empty.</p>`;
+            document.getElementById('cartTotal').innerText = `LKR 0.00`;
+            return;
+        }
+
+        container.innerHTML = cart.map((item, idx) => {
+            total += item.price;
+            return `
+            <div style="padding:1.2rem 0; border-bottom:1px solid rgba(0,0,0,0.05); position:relative; display:flex; justify-content:space-between; align-items:flex-start;">
+                <div style="max-width: 85%;">
+                    <div style="font-weight:700; font-size:0.85rem; color:var(--on-surface);">${item.name}</div>
+                    <div style="color:var(--primary); font-size:0.8rem; font-weight:700; margin-top:4px;">LKR ${item.price.toFixed(2)}</div>
+                </div>
+                <button onclick="removeFromCart(${idx})"
+                        style="background:none; border:none; color:var(--outline); cursor:pointer; font-size:1.1rem; padding:0 5px; transition:0.2s;"
+                        onmouseover="this.style.color='var(--primary)'"
+                        onmouseout="this.style.color='var(--outline)'">
+                    ✕
+                </button>
+            </div>`;
+        }).join('');
+
+        document.getElementById('cartTotal').innerText = `LKR ${total.toFixed(2)}`;
+    }
+
+    // Add the removeFromCart logic if you haven't already
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        saveAndRenderCart();
+    }
+
+    function checkout() {
+        window.location.href = "/customer/book"; // Correct mapping!
+    }
+    saveAndRenderCart();
+    loadCategories();
+</script>
+</body>
+</html>

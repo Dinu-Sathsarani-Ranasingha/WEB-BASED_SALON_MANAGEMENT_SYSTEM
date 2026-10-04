@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Harshi Salon</title>
+    <style>
+        :root {
+            --primary: #d63384;
+            --primary-hover: #c82373;
+            --bg-color: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 50px;
+        }
+
+        .menu-container {
+            display: flex;
+            gap: 30px;
+            max-width: 800px;
+        }
+
+        .menu-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
+            width: 300px;
+            text-decoration: none;
+            color: #333;
+            border-top: 6px solid var(--primary);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .menu-card h2 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .menu-card p {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Harshi Salon | Admin Control Panel</h1>
+</header>
+
+<div class="menu-container">
+    <a href="admin_services.html" class="menu-card">
+        <h2>✂️ Services</h2>
+        <p>Manage individual salon styles, treatments, and pricing.</p>
+        <span class="btn">Manage Services</span>
+    </a>
+
+    <a href="packages-admin.html" class="menu-card">
+        <h2>🎁 Packages</h2>
+        <p>Create and bundle services together for special offers.</p>
+        <span class="btn">Manage Packages</span>
+    </a>
+</div>
+
+</body>
+</html>

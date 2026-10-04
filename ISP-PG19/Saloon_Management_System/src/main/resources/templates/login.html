@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: var(--surface-container-low);
+        }
+        .auth-card {
+            background: var(--surface);
+            width: 100%;
+            max-width: 450px;
+            padding: 3rem;
+            border-radius: 2rem;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(233, 30, 99, 0.1);
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .auth-header h1 {
+            font-size: 2.5rem;
+            color: var(--on-surface);
+            margin-bottom: 0.5rem;
+        }
+        .auth-header p {
+            color: var(--on-surface-variant);
+            font-size: 0.9rem;
+        }
+        .auth-links {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.85rem;
+        }
+        .auth-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .auth-links a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Welcome <span style="font-style: italic; color: var(--primary);">Back</span></h1>
+            <p>Please enter your details to sign in.</p>
+        </div>
+
+        <div th:if="${param.error}" style="color: red; font-size: 0.85rem; margin-bottom: 1rem; text-align: center;">
+            Invalid username or password.
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required autofocus>
+
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+        </form>
+
+        <div class="auth-links">
+            <p style="margin-bottom: 0.5rem;"><a th:href="@{/customer/reset-password}">Forgot your password?</a></p>
+            <p>New to Salon Harshi? <a th:href="@{/register}">Create Account</a></p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

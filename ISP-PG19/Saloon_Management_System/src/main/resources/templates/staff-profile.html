@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .container { display: flex; min-height: 100vh; background: var(--background); }
+        .main-content { flex: 1; padding: 4rem; max-width: 1000px; margin: 0 auto; }
+
+        .profile-card {
+            background: var(--surface);
+            border-radius: 2rem;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        .info-group { margin-bottom: 2rem; border-bottom: 1px solid var(--surface-container); padding-bottom: 1.5rem; }
+        .info-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); margin-bottom: 0.5rem; }
+        .info-value { font-size: 1.1rem; color: var(--on-surface); font-weight: 500; }
+
+        .profile-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <main class="main-content">
+        <div class="profile-header">
+            <h1 class="serif" style="font-size: 2.5rem;">My <span class="italic" style="color: var(--primary);">Profile</span></h1>
+            <a href="/staff/dashboard" style="color: var(--on-surface-variant); text-decoration: none; font-weight: 700; font-size: 0.8rem; text-transform: uppercase;">← Dashboard</a>
+        </div>
+
+        <div class="profile-card">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div class="info-group">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value" th:text="${employee.firstName + ' ' + employee.lastName}">John Doe</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Position</div>
+                    <div class="info-value"><span class="btn-primary" style="padding: 4px 12px; border-radius: 8px; font-size: 0.7rem;" th:text="${employee.role}">Staff</span></div>
+                </div>
+            </div>
+
+            <div class="info-group">
+                <div class="info-label">Email Address</div>
+                <div class="info-value" th:text="${employee.email}">email@example.com</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div class="info-group">
+                    <div class="info-label">Shift Start</div>
+                    <div class="info-value" th:text="${employee.workStartTime}">09:00 AM</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Shift End</div>
+                    <div class="info-value" th:text="${employee.workEndTime}">06:00 PM</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <a th:href="@{/staff/profile/edit}" class="btn btn-primary">Edit Profile</a>
+                <a th:href="@{/staff/change-password}" class="btn btn-outline">Security Settings</a>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile - Salon Harshi</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .main-content { margin-left: 260px; padding: 4rem; display: flex; flex-direction: column; align-items: center; }
+        .profile-container { width: 100%; max-width: 800px; }
+        .page-header { margin-bottom: 3rem; text-align: center; }
+        .page-header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .page-header h1 .italic { font-style: italic; color: var(--primary); }
+        .profile-card { background: var(--surface); border-radius: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid rgba(233,30,99,0.1); padding: 3rem; margin-bottom: 2rem; }
+        .profile-section { margin-bottom: 2.5rem; }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--on-surface); border-bottom: 1px solid rgba(176,75,90,0.1); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+        .profile-row { display: flex; justify-content: space-between; padding: 1rem 0; border-bottom: 1px dashed rgba(176,75,90,0.1); }
+        .profile-row:last-child { border-bottom: none; }
+        .profile-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); }
+        .profile-value { color: var(--on-surface-variant); font-weight: 600; }
+        .action-bar { display: flex; gap: 1rem; justify-content: center; }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<main class="main-content">
+    <div class="profile-container">
+        <div class="page-header">
+            <span class="form-label" style="color:var(--primary);">Account Details</span>
+            <h1>My <span class="italic">Profile</span></h1>
+        </div>
+
+        <div th:if="${successMessage}" style="background:#e8f5e9; color:#2e7d32; padding:1rem; border-radius:1rem; margin-bottom:2rem; text-align:center;" th:text="${successMessage}"></div>
+
+        <div class="profile-card">
+            <div class="profile-section">
+                <div class="section-title">Personal Information</div>
+                <div class="profile-row">
+                    <span class="profile-label">Full Name</span>
+                    <span class="profile-value" th:text="${customer.name}"></span>
+                </div>
+                <div class="profile-row">
+                    <span class="profile-label">Email Address</span>
+                    <span class="profile-value" th:text="${customer.email}"></span>
+                </div>
+                <div class="profile-row">
+                    <span class="profile-label">Phone Number</span>
+                    <span class="profile-value" th:text="${customer.phoneNumber}"></span>
+                </div>
+            </div>
+
+            <div class="profile-section" style="margin-bottom: 0;">
+                <div class="section-title">Account Status</div>
+                <div class="profile-row">
+                    <span class="profile-label">Username</span>
+                    <span class="profile-value" th:text="${customer.username}"></span>
+                </div>
+                <div class="profile-row">
+                    <span class="profile-label">Member Since</span>
+                    <span class="profile-value" th:text="${#temporals.format(customer.registrationDate, 'MMMM dd, yyyy')}"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <a th:href="@{/customer/profile/edit}" class="btn btn-primary">Edit Information</a>
+            <a th:href="@{/customer/reset-password}" class="btn btn-outline">Change Password</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>
